@@ -13,6 +13,7 @@ RUN apt-get update && \
         iproute2 \
         netcat-openbsd \
         git \
+        ca-certificates \
     && apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 

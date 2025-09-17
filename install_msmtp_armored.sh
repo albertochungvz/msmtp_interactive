@@ -120,10 +120,25 @@ ensure_apparmor_enforce () {
     echo "✅  AppArmor enabled and profile applied successfully."
 }
 
+# --- Version parsing patch ---
+get_msmtp_version () {
+    local raw out
+    if ! raw="$(msmtp --version 2>/dev/null)"; then
+        echo "0.0.0"
+        return 0
+    fi
+    out="$(printf '%s\n' "$raw" | head -n1 | grep -Eo '[0-9]+(\.[0-9]+){1,2}' | head -n1)"
+    [[ -n "$out" ]] && echo "$out" || echo "0.0.0"
+}
+
 msmtp_supports_from_fields () {
     local v
-    v="$(msmtp --version | awk 'NR==1 {print $2}')" || echo "0.0.0"
-    dpkg --compare-versions "$v" ge "1.8.8"
+    v="$(get_msmtp_version)"
+    if [[ "$v" =~ ^[0-9] ]]; then
+        dpkg --compare-versions "$v" ge "1.8.8"
+    else
+        return 1
+    fi
 }
 
 # ===================== Main flow =====================
@@ -150,7 +165,7 @@ chmod 640 /var/log/msmtp/msmtp.log
 
 echo "==> Configuring msmtp"
 prompt "SMTP_SERVER" "Enter SMTP server"
-prompt "SMTP_PORT" "Enter SMTP port" "587"
+prompt "SMTP_PORT" "Enter SMTP port (common: 465 for SSL/TLS, 587 for STARTTLS)" "587"
 prompt "SMTP_USER" "Enter SMTP username"
 prompt_secret_to_file "/etc/msmtp.passwd" "Enter SMTP password"
 
@@ -171,8 +186,8 @@ else
     SMTP_FROM="$SMTP_USER"
 fi
 
-# Generate /etc/msmtprc from /config/msmtprc.template
-TEMPLATE_PATH="/config/msmtprc.template"
+# Generate /etc/msmtprc from ./config/msmtprc.template
+TEMPLATE_PATH="./config/msmtprc.template"
 if [[ -f "$TEMPLATE_PATH" ]]; then
     echo "==> Generating /etc/msmtprc from template at $TEMPLATE_PATH"
     sed \
