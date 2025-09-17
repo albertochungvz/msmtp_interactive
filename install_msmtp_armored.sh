@@ -209,13 +209,14 @@ chown root:root /etc/msmtprc
 
 # Test email sending
 TEST_SCRIPT="$SCRIPT_DIR/tests/test_send_mail.sh"
-if [[ -x "$TEST_SCRIPT" ]]; then
+if [[ -f "$TEST_SCRIPT" ]]; then
+    chmod +x "$TEST_SCRIPT"
     echo "==> Sending test email"
     TEST_LOG="/var/log/msmtp/test_send_mail.log"
     mkdir -p "$(dirname "$TEST_LOG")"
     "$TEST_SCRIPT" | tee "$TEST_LOG"
 else
-    echo "⚠️  Test script not found or not executable at: $TEST_SCRIPT"
+    echo "⚠️  Test script not found at: $TEST_SCRIPT"
     echo "    Skipping test email."
 fi
 
