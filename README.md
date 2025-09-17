@@ -33,6 +33,7 @@ This project provides a reproducible and interactive Bash script to install and 
 
 ## 📂 Repository structure
 
+```bash
 msmtp-setup/
 ├── config/
 │ └── msmtprc.template # Template with expected variables
@@ -42,13 +43,13 @@ msmtp-setup/
 │ ├── SECURITY.md 
 │ ├── APPARMOR.md 
 │ │
-│ └── es/                 # Official Spanish translations
-│       ├── APPARMOR.md   # Spanish AppArmor configuration
+│ └── es/                   # Official Spanish translations
+│       ├── APPARMOR.md     # Spanish AppArmor configuration
 │       ├── CHANGELOG.md
 │       ├── CONTRIBUTING.md
 │       ├── README.md
-│       ├── SECURITY.md   # Spanish security notes
-│       └── USAGE.md      # Spanish usage guide
+│       ├── SECURITY.md     # Spanish security notes
+│       └── USAGE.md        # Spanish usage guide
 │
 ├── tests/
 │ └── test_send_mail.sh     # Standalone test script with commented header
@@ -59,6 +60,7 @@ msmtp-setup/
 ├── LICENSE                 # Bilingual MIT (official English + translation)
 ├── README.md               # Main script in English, link to docs/es/README.md
 └── install_msmtp_secure.sh # Main script with secure installation and integrated testing
+```
 
 ---
 
@@ -90,7 +92,7 @@ During execution, the script will prompt you for:
 - AppArmor is kept in enforce mode for msmtp.
 - The SMTP server's TLS certificate is validated.
 
-See docs/SECURITY.md for more details.
+See [SECURITY.md](/docs/SECURITY.md) for more details.
 
 ---
 
@@ -104,13 +106,13 @@ echo -e "Subject: Test\n\nHello" | msmtp -a default -t recipient@mail.com
 ---
 
 ## 📜 License
-This project is licensed under the MIT License. See the LICENSE file for more information.
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for more information.
 
 ---
 
 ## 🤝 Contributions
 Contributions are welcome. Please open an issue or submit a pull request with improvements or corrections.
 
-See CONTRIBUTING.md for more details.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for more details.
 
 > ⚠ Warning: Do not upload files with real credentials (*.pw) or logs with sensitive information to this repository.

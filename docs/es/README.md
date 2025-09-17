@@ -33,6 +33,7 @@ Este proyecto proporciona un **script Bash reproducible e interactivo** para ins
 
 ## 📂 Estructura del repositorio
 
+```bash
 msmtp-setup/
 ├── config/
 │   └── msmtprc.template            # Plantilla con variables esperadas
@@ -59,6 +60,7 @@ msmtp-setup/
 ├── LICENSE                         # MIT bilingüe (inglés oficial + traducción)
 ├── README.md                       # Principal en inglés, enlace a docs/es/README.md
 └── install_msmtp_secure.sh         # Script principal con instalación segura y prueba integrada
+```
 
 ---
 
@@ -90,7 +92,7 @@ Durante la ejecución, el script te pedirá:
 - AppArmor se mantiene en modo enforce para msmtp.
 - Se valida el certificado TLS del servidor SMTP.
 
-Consulta [docs/SECURITY.md](./SECURITY.md) para más detalles.
+Consulta [SECURITY.md](SECURITY.md) para más detalles.
 
 ---
 
@@ -111,7 +113,7 @@ Este proyecto está bajo la licencia MIT. Consulta el archivo [LICENSE](../../LI
 ## 🤝 Contribuciones
 Las contribuciones son bienvenidas. Por favor, abre un issue o envía un pull request con mejoras o correcciones.
 
-Consulta [CONTRIBUTING.md](./CONTRIBUTING.md) para más detalles.
+Consulta [CONTRIBUTING.md](CONTRIBUTING.md) para más detalles.
 
 
 > ⚠ Advertencia: No subas a este repositorio archivos con credenciales reales (*.pw) ni logs con información sensible.
