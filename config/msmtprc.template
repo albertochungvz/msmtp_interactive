@@ -1,35 +1,14 @@
-# =========================
-# Global configuration
-# =========================
 defaults
-auth                 on
-tls                  on
-# Change to'off' if you use pure SMTPS (465 port)
-tls_starttls         on
-tls_trust_file       /etc/ssl/certs/ca-certificates.crt
-tls_certcheck        on
-logfile              /var/log/msmtp/msmtp.log
-aliases              /etc/aliases
+auth           on
+tls            {{TLS_MODE}}
+tls_trust_file /etc/ssl/certs/ca-certificates.crt
+logfile        /var/log/msmtp/msmtp.log
 
-# Forces inclusion of the From: header (requires msmtp >= 1.8.8)
-# The main script will activate this line if the version supports it
-#set_from_header      on
+account        default
+host           {{SMTP_SERVER}}
+port           {{SMTP_PORT}}
+from           {{SMTP_FROM}}
+user           {{SMTP_USER}}
+passwordeval   "cat /etc/msmtp.passwd"
 
-# =========================
-# Default account
-# =========================
-account              default
-host                 {{SMTP_HOST}}
-port                 {{SMTP_PORT}}
-from                 {{FROM_ADDR}}
-# The main script will activate this line if the version supports it
-#from_full_name       "{{FROM_NAME}}"
-user                 {{SMTP_USER}}
-passwordeval         "cat /etc/msmtp/{{SECRET_FILE}}"
-
-# =========================
-# Notes:
-# - Replace {{VARIABLE}} with real values ​​or let the script do it.
-# - Use one password file per account, with permissions of 600 and owner root:root.
-# - For additional accounts, copy the 'account' block and change the values.
-# - Do not include comments at the end of configuration lines; put them on separate lines.
+account default : default

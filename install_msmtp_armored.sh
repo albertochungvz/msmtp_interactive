@@ -2,84 +2,132 @@
 set -Eeuo pipefail
 
 # ========= Security and error handling utilities =========
-abort() {
-  echo "ERROR: $*" >&2
-  exit 1
+
+abort () {
+    echo "ERROR: $*" >&2
+    exit 1
 }
+
 trap 'abort "Failed on line $LINENO (command: $BASH_COMMAND)"' ERR
 
-require_root() {
-  if [[ ${EUID:-$(id -u)} -ne 0 ]]; then
-    abort "Run this script as root (sudo)."
-  fi
+require_root () {
+    if [[ ${EUID:-$(id -u)} -ne 0 ]]; then
+        abort "Run this script as root (sudo)."
+    fi
 }
 
-prompt() {
-  local var="$1" msg="$2" def="${3-}"
-  local input
-  if [[ -n "$def" ]]; then
-    read -r -p "$msg [$def]: " input || abort "Input canceled"
-    input="${input:-$def}"
-  else
-    read -r -p "$msg: " input || abort "Input canceled"
-  fi
-  [[ -n "$input" ]] || abort "Value cannot be empty."
-  printf -v "$var" '%s' "$input"
+prompt () {
+    local var="$1" msg="$2" def="${3-}"
+    local input
+    if [[ -n "$def" ]]; then
+        read -r -p "$msg [$def]: " input || abort "Input canceled"
+        input="${input:-$def}"
+    else
+        read -r -p "$msg: " input || abort "Input canceled"
+    fi
+    [[ -n "$input" ]] || abort "Value cannot be empty."
+    printf -v "$var" '%s' "$input"
 }
 
-prompt_secret_to_file() {
-  local dest="$1"
-  local prompt_msg="$2"
+prompt_secret_to_file () {
+    local dest="$1"
+    local prompt_msg="$2"
 
-  install -d -m 700 -o root -g root "$(dirname "$dest")"
+    install -d -m 700 -o root -g root "$(dirname "$dest")"
 
-  local HIST_WAS_ON=1
-  if set -o | grep -q 'history[[:space:]]\+on'; then
-    set +o history
-  else
-    HIST_WAS_ON=0
-  fi
+    local HIST_WAS_ON=1
+    if set -o | grep -q 'history[[:space:]]\+on'; then
+        set +o history
+    else
+        HIST_WAS_ON=0
+    fi
 
-  local secret=''
-  while true; do
-    read -r -s -p "$prompt_msg: " secret || abort "Input canceled"
-    echo
-    [[ -n "$secret" ]] && break
-    echo "Value cannot be empty."
-  done
+    local secret=''
+    while true; do
+        read -r -s -p "$prompt_msg: " secret || abort "Input canceled"
+        echo
+        [[ -n "$secret" ]] && break
+        echo "Value cannot be empty."
+    done
 
-  umask 177
-  printf '%s' "$secret" > "$dest"
-  chown root:root "$dest"
-  chmod 600 "$dest"
-  secret=''
+    umask 177
+    printf '%s' "$secret" > "$dest"
+    chown root:root "$dest"
+    chmod 600 "$dest"
+    secret=''
 
-  if [[ $HIST_WAS_ON -eq 1 ]]; then
-    set -o history
-  fi
+    if [[ $HIST_WAS_ON -eq 1 ]]; then
+        set -o history
+    fi
 }
 
-ensure_pkg() {
-  local pkgs=("$@")
-  apt-get update -y
-  DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends "${pkgs[@]}"
+ensure_pkg () {
+    local pkgs=("$@")
+    apt-get update -y
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends "${pkgs[@]}"
 }
 
-ensure_apparmor_enforce() {
-  systemctl is-enabled apparmor >/dev/null 2>&1 || systemctl enable apparmor
-  systemctl is-active apparmor >/dev/null 2>&1 || systemctl start apparmor
-  if command -v aa-enforce >/dev/null 2>&1 && [[ -e /usr/bin/msmtp ]]; then
-    aa-enforce /usr/bin/msmtp || true
-  fi
+# ========= Improved AppArmor handling =========
+
+ensure_apparmor_enforce () {
+    echo "==> Checking AppArmor availability..."
+
+    APPARMOR_STATUS="skipped"
+
+    if ! command -v aa-status >/dev/null 2>&1; then
+        echo "⚠️  AppArmor is not installed on this system. Skipping configuration."
+        APPARMOR_STATUS="not_installed"
+        return 0
+    fi
+
+    if ! aa-status >/dev/null 2>&1; then
+        echo "⚠️  AppArmor kernel module is not available in this environment."
+        echo "ℹ️  This is common in Docker containers without AppArmor support."
+        echo "➡️  Skipping service start, continuing with the rest of the installation."
+        APPARMOR_STATUS="kernel_unavailable"
+        return 0
+    fi
+
+    echo "==> Enabling and starting AppArmor..."
+    if ! systemctl is-enabled apparmor >/dev/null 2>&1; then
+        if ! systemctl enable apparmor; then
+            echo "❌  Failed to enable AppArmor."
+            APPARMOR_STATUS="enable_failed"
+            return 1
+        fi
+    fi
+
+    if ! systemctl is-active apparmor >/dev/null 2>&1; then
+        if ! systemctl start apparmor; then
+            echo "❌  Failed to start AppArmor service. Check system configuration."
+            APPARMOR_STATUS="start_failed"
+            return 1
+        fi
+    fi
+
+    if command -v aa-enforce >/dev/null 2>&1 && [ -e /usr/bin/msmtp ]; then
+        echo "==> Applying AppArmor profile for msmtp..."
+        if aa-enforce /usr/bin/msmtp; then
+            APPARMOR_STATUS="profile_applied"
+        else
+            echo "⚠️  Failed to apply msmtp profile."
+            APPARMOR_STATUS="profile_failed"
+        fi
+    else
+        APPARMOR_STATUS="service_started"
+    fi
+
+    echo "✅  AppArmor enabled and profile applied successfully."
 }
 
-msmtp_supports_from_fields() {
-  local v
-  v="$(msmtp --version | awk 'NR==1{print $2}')" || echo "0.0.0"
-  dpkg --compare-versions "$v" ge "1.8.8"
+msmtp_supports_from_fields () {
+    local v
+    v="$(msmtp --version | awk 'NR==1 {print $2}')" || echo "0.0.0"
+    dpkg --compare-versions "$v" ge "1.8.8"
 }
 
 # ===================== Main flow =====================
+
 require_root
 
 echo "==> Installing required packages"
@@ -87,104 +135,98 @@ ensure_pkg ca-certificates msmtp msmtp-mta mailutils apparmor apparmor-utils
 
 echo "==> Checking CA bundle"
 if [[ ! -s /etc/ssl/certs/ca-certificates.crt ]]; then
-  echo "CA bundle missing or empty. Reinstalling..."
-  apt-get install -y --reinstall ca-certificates
-  update-ca-certificates
+    echo "CA bundle missing or empty. Running update-ca-certificates..."
+    update-ca-certificates
 fi
 
 echo "==> Enabling AppArmor for msmtp (enforce)"
 ensure_apparmor_enforce
 
-echo "==> Preparing AppArmor-compatible log directory and file"
-install -d -m 750 -o root -g adm /var/log/msmtp
+echo "==> Creating log directory and file for msmtp"
+install -d -m 750 -o root -g mail /var/log/msmtp
 touch /var/log/msmtp/msmtp.log
-chown root:adm /var/log/msmtp/msmtp.log
+chown root:mail /var/log/msmtp/msmtp.log
 chmod 640 /var/log/msmtp/msmtp.log
 
-# ========= Collect configuration data =========
-echo "==> Collecting default SMTP account parameters"
-prompt SMTP_HOST      "SMTP server (host)" "smtp.example.com"
-prompt SMTP_PORT      "SMTP port" "587"
-prompt FROM_ADDR      "Default From address" "no-reply@midominio.com"
-prompt FROM_NAME      "Sender's full name (From Full Name)" "Notifications Midominio"
-prompt SMTP_USER      "SMTP user" "$FROM_ADDR"
+echo "==> Configuring msmtp"
+prompt "SMTP_SERVER" "Enter SMTP server"
+prompt "SMTP_PORT" "Enter SMTP port" "587"
+prompt "SMTP_USER" "Enter SMTP username"
+prompt_secret_to_file "/etc/msmtp.passwd" "Enter SMTP password"
 
-TLS_MODE="starttls"
+# TLS mode validation
 if [[ "$SMTP_PORT" == "465" ]]; then
-  TLS_MODE="smtps"
-fi
-
-echo "==> Defining location of the secure password file"
-prompt SECRET_FILE "Name of password file (without path)" "default.pw"
-SECRET_PATH="/etc/msmtp/$SECRET_FILE"
-prompt_secret_to_file "$SECRET_PATH" "Enter SMTP password (or App Password)"
-
-# ========= Generate /etc/msmtprc =========
-echo "==> Generating /etc/msmtprc with secure template"
-umask 177
-{
-  echo "# ========================="
-  echo "# Global configuration"
-  echo "# ========================="
-  echo "defaults"
-  echo "auth                 on"
-  echo "tls                  on"
-  if [[ "$TLS_MODE" == "starttls" ]]; then
-    echo "tls_starttls         on"
-  else
-    echo "tls_starttls         off"
-  fi
-  echo "tls_trust_file       /etc/ssl/certs/ca-certificates.crt"
-  echo "tls_certcheck        on"
-  echo "logfile              /var/log/msmtp/msmtp.log"
-  echo "aliases              /etc/aliases"
-  if msmtp_supports_from_fields; then
-    echo "set_from_header      on"
-  fi
-  echo
-  echo "# ========================="
-  echo "# Default account"
-  echo "# ========================="
-  echo "account              default"
-  echo "host                 $SMTP_HOST"
-  echo "port                 $SMTP_PORT"
-  echo "from                 $FROM_ADDR"
-  if msmtp_supports_from_fields; then
-    echo "from_full_name       \"$FROM_NAME\""
-  fi
-  echo "user                 $SMTP_USER"
-  echo "passwordeval         \"cat $SECRET_PATH\""
-} > /etc/msmtprc
-
-chown root:root /etc/msmtprc
-chmod 600 /etc/msmtprc
-
-# ========= Integrated send test =========
-echo "==> Performing integrated send test"
-read -r -p "Enter the recipient email for the test: " TEST_RECIPIENT
-TEST_LOG="/var/log/msmtp/test_send_mail.log"
-TMPMSG="$(mktemp /tmp/msmtp-test.XXXXXX)"
-
-{
-  echo "To: $TEST_RECIPIENT"
-  echo "Subject: msmtp test - $(hostname)"
-  echo
-  echo "Hello,"
-  echo
-  echo "This is a test message sent with msmtp."
-  echo "Date: $(date -Is)"
-  echo "Host: $(hostname -f 2>/dev/null || hostname)"
-  echo
-  echo "If you receive this message, the configuration is correct."
-} > "$TMPMSG"
-
-if msmtp --debug -a default -t < "$TMPMSG" 2>&1 | tee "$TEST_LOG"; then
-  echo "==> Message sent. Check the mailbox of $TEST_RECIPIENT"
+    TLS_MODE="on"
+    echo "ℹ️  Port 465 detected, forcing TLS mode 'on'."
 else
-  echo "ERROR: Sending failed. Check $TEST_LOG for details."
+    TLS_MODE="on"
 fi
 
-rm -f "$TMPMSG"
-echo "==> Test log saved to: $TEST_LOG"
+# Ask for full name if msmtp supports 'from' fields
+if msmtp_supports_from_fields; then
+    echo "==> msmtp supports 'from' fields with full name."
+    prompt "SMTP_FROM_NAME" "Enter full name for 'From' field" "$SMTP_USER"
+    SMTP_FROM="$SMTP_FROM_NAME <$SMTP_USER>"
+else
+    SMTP_FROM="$SMTP_USER"
+fi
 
-echo "==> Installation and testing completed."
+# Generate /etc/msmtprc from /config/msmtprc.template
+TEMPLATE_PATH="/config/msmtprc.template"
+if [[ -f "$TEMPLATE_PATH" ]]; then
+    echo "==> Generating /etc/msmtprc from template at $TEMPLATE_PATH"
+    sed \
+        -e "s|{{SMTP_SERVER}}|$SMTP_SERVER|g" \
+        -e "s|{{SMTP_PORT}}|$SMTP_PORT|g" \
+        -e "s|{{SMTP_USER}}|$SMTP_USER|g" \
+        -e "s|{{SMTP_FROM}}|$SMTP_FROM|g" \
+        -e "s|{{TLS_MODE}}|$TLS_MODE|g" \
+        "$TEMPLATE_PATH" > /etc/msmtprc
+else
+    abort "msmtprc.template not found at $TEMPLATE_PATH"
+fi
+
+chmod 600 /etc/msmtprc
+chown root:root /etc/msmtprc
+
+# Test email sending
+if [[ -x "./tests/test_send_mail.sh" ]]; then
+    echo "==> Sending test email"
+    TEST_LOG="/var/log/msmtp/test_send_mail.log"
+    mkdir -p "$(dirname "$TEST_LOG")"
+    ./tests/test_send_mail.sh | tee "$TEST_LOG"
+else
+    echo "⚠️  tests/test_send_mail.sh not found or not executable. Skipping test email."
+fi
+
+# ===== Final summary =====
+echo
+echo "===== INSTALLATION SUMMARY ====="
+case "$APPARMOR_STATUS" in
+    not_installed)
+        echo "AppArmor: Not installed - skipped."
+        ;;
+    kernel_unavailable)
+        echo "AppArmor: Kernel module unavailable - skipped."
+        ;;
+    enable_failed)
+        echo "AppArmor: Failed to enable service."
+        ;;
+    start_failed)
+        echo "AppArmor: Failed to start service."
+        ;;
+    profile_failed)
+        echo "AppArmor: Service started, but profile application failed."
+        ;;
+    profile_applied)
+        echo "AppArmor: Service started and profile applied successfully."
+        ;;
+    service_started)
+        echo "AppArmor: Service started successfully."
+        ;;
+    skipped|*)
+        echo "AppArmor: Skipped."
+        ;;
+esac
+echo "================================"
+echo "msmtp configuration completed."
