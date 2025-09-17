@@ -165,7 +165,7 @@ chmod 640 /var/log/msmtp/msmtp.log
 
 echo "==> Configuring msmtp"
 prompt "SMTP_SERVER" "Enter SMTP server"
-prompt "SMTP_PORT" "Enter SMTP port (common: 465 for SSL/TLS, 587 for STARTTLS)" "587"
+prompt "SMTP_PORT" "Enter SMTP port (common: 465 for SSL/TLS, 587 for STARTTLS)"
 prompt "SMTP_USER" "Enter SMTP username"
 prompt_secret_to_file "/etc/msmtp.passwd" "Enter SMTP password"
 
@@ -205,13 +205,15 @@ chmod 600 /etc/msmtprc
 chown root:root /etc/msmtprc
 
 # Test email sending
-if [[ -x "./tests/test_send_mail.sh" ]]; then
+TEST_SCRIPT="$SCRIPT_DIR/tests/test_send_mail.sh"
+if [[ -x "$TEST_SCRIPT" ]]; then
     echo "==> Sending test email"
     TEST_LOG="/var/log/msmtp/test_send_mail.log"
     mkdir -p "$(dirname "$TEST_LOG")"
-    ./tests/test_send_mail.sh | tee "$TEST_LOG"
+    "$TEST_SCRIPT" | tee "$TEST_LOG"
 else
-    echo "⚠️  tests/test_send_mail.sh not found or not executable. Skipping test email."
+    echo "⚠️  Test script not found or not executable at: $TEST_SCRIPT"
+    echo "    Skipping test email."
 fi
 
 # ===== Final summary =====

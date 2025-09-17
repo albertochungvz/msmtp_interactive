@@ -4,8 +4,10 @@ set -Eeuo pipefail
 # =========================
 # Configuration
 # =========================
+SCRIPT_DIR="$(cd -- "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
 ACCOUNT="default"   # Account name in /etc/msmtprc
-LOGFILE="/var/log/msmtp/test_send_mail.log"
+LOGDIR="/var/log/msmtp"
+LOGFILE="$LOGDIR/test_send_mail.log"
 TMPMSG="$(mktemp /tmp/msmtp-test.XXXXXX)"
 
 # =========================
@@ -25,8 +27,18 @@ prompt() {
   else
     read -r -p "$msg: " input || abort "Input canceled"
   fi
+  [[ -n "$input" ]] || abort "Value cannot be empty."
   printf -v "$var" '%s' "$input"
 }
+
+# =========================
+# Pre-flight checks
+# =========================
+command -v msmtp >/dev/null 2>&1 || abort "msmtp not found. Please install it first."
+[[ -f /etc/msmtprc ]] || abort "/etc/msmtprc not found. Run install_msmtp_armored.sh first."
+
+# Ensure log directory exists
+install -d -m 750 -o root -g mail "$LOGDIR"
 
 # =========================
 # Request data
@@ -54,7 +66,7 @@ prompt RECIPIENT "Destination email for the test"
 # =========================
 echo "==> Sending test message..."
 if msmtp --debug -a "$ACCOUNT" -t < "$TMPMSG" 2>&1 | tee "$LOGFILE"; then
-  echo "==> Message sent. Check the inbox of $RECIPIENT"
+  echo "✅ Message sent. Check the inbox of $RECIPIENT"
 else
   abort "Failed to send message. Check $LOGFILE for details."
 fi
@@ -64,5 +76,8 @@ fi
 # =========================
 rm -f "$TMPMSG"
 
+# =========================
+# Summary
+# =========================
 echo "==> Test log saved to: $LOGFILE"
 echo "==> End of test."

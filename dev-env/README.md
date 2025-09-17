@@ -5,7 +5,7 @@ This folder contains a minimal Ubuntu Server environment with `systemd` and SSH 
 **Key points:**
 - No AppArmor or related packages are preinstalled — the script under test is expected to install and configure them.
 - Provides both a non-root user (`devuser`) with passwordless `sudo` and a `root` account for testing.
-- SSH access is exposed on host port `2222`.
+- SSH access is exposed on host port `22222`.
 - Healthcheck ensures SSH is ready before connecting.
 
 ---
