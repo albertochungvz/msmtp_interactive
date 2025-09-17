@@ -67,7 +67,7 @@ chmod +x msmtp_dev_env.sh
 
 ### 2. Start and connect as `devuser`
 ```bash
-./msmtp_dev_env.sh --root
+./msmtp_dev_env.sh
 ```
 Password: `devpass`
 
@@ -182,3 +182,10 @@ Also verify that:
     ```bash
     docker logs msmtp_dev
     ```
+
+### Force the entire working tree to the remote version:
+
+```bash
+git fetch origin
+git reset --hard origin/dev
+```

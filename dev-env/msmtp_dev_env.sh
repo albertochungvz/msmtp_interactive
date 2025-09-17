@@ -3,7 +3,7 @@ set -Eeuo pipefail
 
 CONTAINER_NAME="msmtp_dev"
 SSH_USER="devuser"
-SSH_PORT=2222
+SSH_PORT=22222
 
 usage() {
     echo "Usage: $0 [--root] [--stop]"
