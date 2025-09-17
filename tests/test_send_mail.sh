@@ -2,14 +2,14 @@
 set -Eeuo pipefail
 
 # =========================
-# Configuración
+# Configuration
 # =========================
-ACCOUNT="default"   # Nombre de la cuenta en /etc/msmtprc
+ACCOUNT="default"   # Account name in /etc/msmtprc
 LOGFILE="/var/log/msmtp/test_send_mail.log"
 TMPMSG="$(mktemp /tmp/msmtp-test.XXXXXX)"
 
 # =========================
-# Funciones
+# Functions
 # =========================
 abort() {
   echo "ERROR: $*" >&2
@@ -20,49 +20,49 @@ prompt() {
   local var="$1" msg="$2" def="${3-}"
   local input
   if [[ -n "$def" ]]; then
-    read -r -p "$msg [$def]: " input || abort "Entrada cancelada"
+    read -r -p "$msg [$def]: " input || abort "Input canceled"
     input="${input:-$def}"
   else
-    read -r -p "$msg: " input || abort "Entrada cancelada"
+    read -r -p "$msg: " input || abort "Input canceled"
   fi
   printf -v "$var" '%s' "$input"
 }
 
 # =========================
-# Solicitar datos
+# Request data
 # =========================
-prompt RECIPIENT "Correo de destino para la prueba"
+prompt RECIPIENT "Destination email for the test"
 
 # =========================
-# Preparar mensaje
+# Prepare message
 # =========================
 {
   echo "To: $RECIPIENT"
-  echo "Subject: Prueba msmtp - $(hostname)"
+  echo "Subject: msmtp test - $(hostname)"
   echo
-  echo "Hola,"
+  echo "Hi,"
   echo
-  echo "Este es un mensaje de prueba enviado con msmtp."
-  echo "Fecha: $(date -Is)"
+  echo "This is a test message sent with msmtp."
+  echo "Date: $(date -Is)"
   echo "Host: $(hostname -f 2>/dev/null || hostname)"
   echo
-  echo "Si recibes este mensaje, la configuración es correcta."
+  echo "If you receive this message, the configuration is correct."
 } > "$TMPMSG"
 
 # =========================
-# Envío
+# Sending message
 # =========================
-echo "==> Enviando mensaje de prueba..."
+echo "==> Sending test message..."
 if msmtp --debug -a "$ACCOUNT" -t < "$TMPMSG" 2>&1 | tee "$LOGFILE"; then
-  echo "==> Mensaje enviado. Revisa el buzón de $RECIPIENT"
+  echo "==> Message sent. Check the inbox of $RECIPIENT"
 else
-  abort "Fallo en el envío. Revisa $LOGFILE para más detalles."
+  abort "Failed to send message. Check $LOGFILE for details."
 fi
 
 # =========================
-# Limpieza
+# Cleanup
 # =========================
 rm -f "$TMPMSG"
 
-echo "==> Log de prueba guardado en: $LOGFILE"
-echo "==> Fin de la prueba."
+echo "==> Test log saved to: $LOGFILE"
+echo "==> End of test."

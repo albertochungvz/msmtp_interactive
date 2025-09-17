@@ -1,35 +1,35 @@
 # =========================
-# Configuración global
+# Global configuration
 # =========================
 defaults
 auth                 on
 tls                  on
-# Cambiar a 'off' si usas SMTPS puro (puerto 465)
+# Change to'off' if you use pure SMTPS (465 port)
 tls_starttls         on
 tls_trust_file       /etc/ssl/certs/ca-certificates.crt
 tls_certcheck        on
 logfile              /var/log/msmtp/msmtp.log
 aliases              /etc/aliases
 
-# Fuerza la inclusión de la cabecera From: (requiere msmtp >= 1.8.8)
-# El script principal activará esta línea si la versión lo soporta
+# Forces inclusion of the From: header (requires msmtp >= 1.8.8)
+# The main script will activate this line if the version supports it
 #set_from_header      on
 
 # =========================
-# Cuenta por defecto
+# Default account
 # =========================
 account              default
 host                 {{SMTP_HOST}}
 port                 {{SMTP_PORT}}
 from                 {{FROM_ADDR}}
-# El script principal activará esta línea si la versión lo soporta
+# The main script will activate this line if the version supports it
 #from_full_name       "{{FROM_NAME}}"
 user                 {{SMTP_USER}}
 passwordeval         "cat /etc/msmtp/{{SECRET_FILE}}"
 
 # =========================
-# Notas:
-# - Sustituye {{VARIABLE}} por valores reales o deja que el script lo haga.
-# - Usa un archivo de contraseña por cuenta, con permisos 600 y propietario root:root.
-# - Para cuentas adicionales, copia el bloque 'account' y cambia los valores.
-# - No incluyas comentarios al final de las líneas de configuración: ponlos en líneas separadas.
+# Notes:
+# - Replace {{VARIABLE}} with real values ​​or let the script do it.
+# - Use one password file per account, with permissions of 600 and owner root:root.
+# - For additional accounts, copy the 'account' block and change the values.
+# - Do not include comments at the end of configuration lines; put them on separate lines.

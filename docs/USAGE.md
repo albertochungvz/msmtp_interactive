@@ -1,106 +1,115 @@
-# Guía de Uso de msmtp con AppArmor
+# AppArmor Usage Guide for msmtp
 
-Este documento explica cómo utilizar `msmtp` una vez instalado y configurado con el script de este repositorio, así como comandos de prueba y diagnóstico.
+This document explains how to use `msmtp` once installed and configured with the script in this repository, as well as testing and diagnostic commands.
 
 ---
 
-## 📬 Envío básico de correo
+## 📬 Basic Email Sending
 
-Para enviar un correo simple desde la terminal:
-
-```bash
-echo -e "Subject: Asunto de prueba\n\nCuerpo del mensaje" | msmtp -a default -t destinatario@correo.com
-```
-
--a default → usa la cuenta llamada default en `/etc/msmtprc`.
-
--t → indica a msmtp que lea los destinatarios de la cabecera To: o de la línea de comando.
-
-## 📂 Envío con múltiples cuentas
-Si tienes varias cuentas configuradas en `/etc/msmtprc`:
+To send a simple email from the terminal:
 
 ```bash
-echo -e "Subject: Prueba sitio1\n\nMensaje" | msmtp -a sitio1 -t destinatario@correo.com
+echo -e "Subject: Test Subject\n\nMessage Body" | msmtp -a default -t recipient@mail.com
 ```
 
-## 🧪 Prueba de envío con depuración
-Para ver el detalle de la conexión y autenticación:
+-a default → Use the account named default in `/etc/msmtprc`.
+
+-t → Tells msmtp to read recipients from the To: header or the command line.
+
+---
+
+## 📂 Sending with Multiple Accounts
+If you have multiple accounts configured in `/etc/msmtprc`:
 
 ```bash
-echo -e "Subject: Debug\n\nTest" | msmtp -a default -t destinatario@correo.com --debug
+echo -e "Subject: Test site1\n\nMessage" | msmtp -a site1 -t recipient@mail.com
 ```
 
-Esto mostrará:
+---
 
-- Resolución DNS del servidor SMTP.
-- Negociación TLS.
-- Respuesta del servidor a cada comando SMTP.
+## 🧪 Sending Test with Debugging
+To see connection and authentication details:
 
-## 📜 Revisión de logs
+```bash
+echo -e "Subject: Debug\n\nTest" | msmtp -a default -t recipient@mail.com --debug
+```
 
+This will show:
 
-- Si usas el log en `/var/log/msmtp/msmtp.log`:
+- DNS resolution of the SMTP server.
+- TLS negotiation.
+- Server response to each SMTP command.
 
+---
+
+## 📜 Log Review
+
+- If you use the log in `/var/log/msmtp/msmtp.log`:
+
+```bash
+sudo tail -f /var/log/msmtp/msmtp.log
+```
+
+- If you use syslog:
+```bash
+sudo tail -f /var/log/mail.log
+# or with journalctl
+sudo journalctl -t msmtp -f
+```
+
+---
+## 🔍 Troubleshooting Common Problems
+1. TLS Certificate Error
+Message: `Certificate verification failed`
+
+    Solution:
+
+    - Verify that `/etc/ssl/certs/ca-certificates.crt` exists and is not empty. Run:
     ```bash
-    sudo tail -f /var/log/msmtp/msmtp.log
+    sudo update-ca-certificates
     ```
+    - Check the system time and date.
 
-- Si usas syslog:
-    ```bash
-    sudo tail -f /var/log/mail.log
-    # o con journalctl
-    sudo journalctl -t msmtp -f
-    ```
+2. Log Permission Error
+Message: `Cannot log to /var/log/msmtp/msmtp.log: cannot open: Permission denied`
 
-## 🔍 Diagnóstico de problemas comunes
-1. Error de certificado TLS
-Mensaje: `Certificate verification failed`
+    Solution:
 
-    Solución:
+    - Make sure the user running `msmtp` has write permissions.
+    - Verify that AppArmor allows the path (see docs/APPARMOR.md).
 
-    - Verifica que `/etc/ssl/certs/ca-certificates.crt` existe y no está vacío. Ejecuta:
-        ```bash
-        sudo update-ca-certificates
-        ```
-    - Comprueba la hora y fecha del sistema.
+3. Authentication Failed
+Message: `Authentication failed`
 
-2. Error de permisos en log
-Mensaje: `Cannot log to /var/log/msmtp/msmtp.log: cannot open: Permission denied`
+    Solution:
 
-    Solución:
+    - Verify username and password.
+    - If the provider uses MFA, generate an App Password.
+    - Check that `passwordeval` points to the correct file.
 
-    - Asegúrate de que el usuario que ejecuta `msmtp` tenga permisos de escritura.
-    - Verifica que AppArmor permite la ruta (ver docs/APPARMOR.md).
+---
 
-3. Autenticación fallida
-Mensaje: `Authentication failed`
+## 📌 Usage Tips
 
-    Solución:
-
-    - Verifica usuario y contraseña.
-    - Si el proveedor usa MFA, genera un App Password.
-    - Comprueba que `passwordeval` apunta al archivo correcto.
-
-
-## 📌 Consejos de uso
-
-- Automatización: puedes usar msmtp en scripts de backup, cronjobs o alertas del sistema.
-- PHP-FPM: configura `sendmail_path` en el pool para usar una cuenta específica.
-- Rotación de logs: añade una regla en `/etc/logrotate.d/msmtp` para evitar crecimiento ilimitado.
-Ejemplo de regla de *logrotate*:
+- Automation: You can use msmtp in backup scripts, cronjobs, or system alerts.
+- PHP-FPM: Set `sendmail_path` in the pool to use a specific account.
+- Log rotation: Add a rule in `/etc/logrotate.d/msmtp` to prevent unlimited growth.
+Example *logrotate* rule:
 
 ```bash
 /var/log/msmtp/msmtp.log {
-    weekly
-    rotate 12
-    compress
-    missingok
-    notifempty
-    create 640 root adm
+weekly
+rotate 12
+compress
+missingok
+notifempty
+create 640 root adm 
 }
 ```
 
-## 📚 Referencias
+---
 
-- [Manual oficial de msmtp](https://marlam.de/msmtp/msmtp.html)
-- [Documentación de AppArmor en Ubuntu](https://documentation.ubuntu.com/server/how-to/security/apparmor/)
+## 📚 References
+
+- [Official msmtp manual](https://marlam.de/msmtp/msmtp.html)
+- [AppArmor documentation on Ubuntu](https://documentation.ubuntu.com/server/how-to/security/apparmor/)

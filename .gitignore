@@ -1,53 +1,56 @@
 # =========================
-# Archivos sensibles
+# Sensitive files
 # =========================
 
-# Archivos de contraseñas de msmtp
+# msmtp password files
 /etc/msmtp/*.pw
 *.pw
 
-# Configuraciones locales que puedan contener datos reales
+# Local configurations that may contain real data
 /etc/msmtprc
 msmtprc
 config/msmtprc.local
 config/*.local
 
 # =========================
-# Logs y salidas de ejecución
+# Execution logs and outputs
 # =========================
 
-# Logs de msmtp
+# msmtp logs
 /var/log/msmtp/*.log
 *.log
 
-# Archivos temporales de pruebas
+# Temporary test files
 tmp/
 *.tmp
+/tmp/*
 
 # =========================
-# Archivos del sistema y del entorno
+# System and environment files
 # =========================
 
-# Archivos de sistema
+# System files
 .DS_Store
 Thumbs.db
 
-# Archivos de editor/IDE
+# Editor/IDE files
 .vscode/
 .idea/
 *.swp
 *.swo
 
 # =========================
-# Archivos de backup
+# Backup files
 # =========================
 *~
 *.bak
 *.old
 
 # =========================
-# Otros
+# Others
 # =========================
 
-# Salidas de pruebas automatizadas
+# Automated test outputs
 tests/output/
+# Temporary test files
+msmtp-test.*

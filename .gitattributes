@@ -1,35 +1,39 @@
 # =========================
-# Normalización de finales de línea
+# Line endings normalization
 # =========================
 
-# Forzar LF en todos los scripts y archivos de configuración de texto
+# Force LF in all scripts and text configuration files
 *.sh         text eol=lf
 *.md         text eol=lf
 *.template   text eol=lf
 *.conf       text eol=lf
 *.txt        text eol=lf
+tests/*.sh   text eol=lf
+
 
 # =========================
-# Archivos sensibles y plantillas
+# Sensitive files and templates
 # =========================
 
-# Plantilla msmtprc: mantener como texto LF, sin conversión automática
+# Msmtprc template: Keep as LF text, no automatic conversion
 config/msmtprc.template text eol=lf
 
 # =========================
-# Archivos binarios
+# Binary files
 # =========================
 
-# Imágenes o binarios (diagramas o capturas)
+# Images or binaries (diagrams or screenshots)
 *.png        binary
 *.jpg        binary
 *.jpeg       binary
 *.gif        binary
 *.pdf        binary
+*.svg        text eol=lf
+
 
 # =========================
-# Otros
+# Others
 # =========================
 
-# Evitar que Git intente convertir finales de línea en scripts de prueba
+# Prevent Git from trying to convert line endings in test scripts
 tests/*.sh   text eol=lf

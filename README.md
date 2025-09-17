@@ -1,103 +1,116 @@
-# Configuración segura de msmtp con AppArmor en Ubuntu Server
+# Securely Configuring msmtp with AppArmor on Ubuntu Server
 
-Este proyecto proporciona un **script Bash reproducible e interactivo** para instalar y configurar `msmtp` en **Ubuntu Server** con:
+This project provides a reproducible and interactive Bash script to install and configure `msmtp` on Ubuntu Server with:
 
-- **AppArmor** habilitado y ajustado para logs seguros.
-- **TLS** y validación de certificados.
-- **Gestión segura de contraseñas** con `passwordeval`.
-- **Plantilla `msmtprc`** lista para producción.
-- **Prueba de envío** automática.
+- AppArmor enabled and tuned for secure logging.
+- TLS and certificate validation.
+- Secure password management with `passwordeval`.
+- Production-ready msmtprc template.
+- Automatic push testing.
 
+---
 
-## 🚀 Características
+## 🚀 Features
 
-- Instalación de `msmtp`, `msmtp-mta`, `mailutils`, `ca-certificates`, dependencias y utilidades de AppArmor.
-- Verificación y reinstalación del bundle de CA si es necesario.
-- Habilita AppArmor en modo *enforce* para `msmtp`
-- Creación de directorio y archivo de log en `/var/log/msmtp/` con permisos compatibles con AppArmor.
-- Generación de `/etc/msmtprc` seguro y compatible.
-- Solicitud interactiva de credenciales sin exponerlas en historial ni procesos.
-- Envío de correo de prueba y almacenamiento del log en `/var/log/msmtp/test_send_mail.log`.
+- Installation of `msmtp`, `msmtp-mta`, `mailutils`, `ca-certificates`, `AppArmor` dependencies, and utilities.
+- Verification and reinstallation of the CA bundle if necessary.
+- Enable AppArmor in *enforce* mode for `msmtp`
+- Create a directory and log file in `/var/log/msmtp/` with AppArmor-compatible permissions.
+- Generate a secure and compatible `/etc/msmtprc`.
+- Interactively request credentials without exposing them to history or processes.
+- Send test emails and save the log to `/var/log/msmtp/test_send_mail.log`.
 
+---
 
-## 📦 Requisitos
+## 📦 Requirements
 
-- Ubuntu Server 20.04 o superior.
-- Acceso root (`sudo`).
-- Conexión a internet para instalar paquetes.
-- Credenciales SMTP válidas (usuario, contraseña o App Password).
+- Ubuntu Server 20.04 or higher.
+- Root access (`sudo`).
+- Internet connection to install packages.
+- Valid SMTP credentials (username, password, or App Password).
 
+---
 
-## 📂 Estructura del repositorio
+## 📂 Repository structure
 
-msmtp-setup/ 
-├── README.md 
-├── LICENSE 
-├── install_msmtp_secure.sh 
-├── config/ 
-│ └── msmtprc.template 
-├── docs/ 
-│ ├── APPARMOR.md
+msmtp-setup/
+├── config/
+│ └── msmtprc.template # Template with expected variables
+│
+├── docs/
+│ ├── USAGE.md 
 │ ├── SECURITY.md 
-│ └── USAGE.md 
-├── .gitattributes
-├── .gitignore 
-└── tests/ 
-│ └── test_send_mail.sh
+│ ├── APPARMOR.md 
+│ │
+│ └── es/                 # Official Spanish translations
+│       ├── APPARMOR.md   # Spanish AppArmor configuration
+│       ├── CHANGELOG.md
+│       ├── CONTRIBUTING.md
+│       ├── README.md
+│       ├── SECURITY.md   # Spanish security notes
+│       └── USAGE.md      # Spanish usage guide
+│
+├── tests/
+│ └── test_send_mail.sh     # Standalone test script with commented header
+├── .gitattributes          # Normalizes line endings, marks binaries
+├── .gitignore              # Ignores credentials, logs, and temps
+├── CHANGELOG.md            # Changelog (initial v0.1)
+├── CONTRIBUTING.md         # Guide contribution
+├── LICENSE                 # Bilingual MIT (official English + translation)
+├── README.md               # Main script in English, link to docs/es/README.md
+└── install_msmtp_secure.sh # Main script with secure installation and integrated testing
 
+---
 
-## 🔧 Instalación
+## 🔧 Installation
 
-Clona el repositorio y ejecuta el script:
+Clone the repository and run the script:
 
 ```bash
-git clone https://github.com/TU_USUARIO/msmtp-setup.git
+git clone https://github.com/YOUR_USER/msmtp-setup.git
 cd msmtp-setup
 chmod +x install_msmtp_secure.sh
 sudo ./install_msmtp_secure.sh
 ```
 
-Durante la ejecución, el script te pedirá:
+During execution, the script will prompt you for:
 
-    - Servidor SMTP y puerto.
+- SMTP server and port.
+- Sender address and name.
+- SMTP username.
+- Password file and value (stored securely).
+- Test email.
 
-    - Dirección y nombre del remitente.
+---
 
-    - Usuario SMTP.
+## 🛡 Security
 
-    - Archivo y valor de la contraseña (guardado de forma segura).
+- Plain text passwords are not saved in the history or across processes.
+- The log is stored in /var/log/msmtp/msmtp.log with restrictive permissions.
+- AppArmor is kept in enforce mode for msmtp.
+- The SMTP server's TLS certificate is validated.
 
-    - Correo de prueba.
+See docs/SECURITY.md for more details.
 
+---
 
-## 🛡 Seguridad
-
-    - No se guardan contraseñas en texto plano en el historial ni en procesos.
-
-    - El log se almacena en /var/log/msmtp/msmtp.log con permisos restrictivos.
-
-    - AppArmor se mantiene en modo enforce para msmtp.
-
-    - Se valida el certificado TLS del servidor SMTP.
-
-Consulta docs/SECURITY.md para más detalles.
-
-
-## 🧪 Prueba de envío
-El script enviará un correo de prueba al finalizar. Puedes enviar manualmente con:
+## 🧪 Test Send
+The script will send a test email upon completion. You can send it manually with:
 
 ```bash
-echo -e "Subject: Test\n\nHola" | msmtp -a default -t destinatario@correo.com
+echo -e "Subject: Test\n\nHello" | msmtp -a default -t recipient@mail.com
 ```
 
+---
 
-## 📜 Licencia
-Este proyecto está bajo la licencia MIT. Consulta el archivo LICENSE para más información.
+## 📜 License
+This project is licensed under the MIT License. See the LICENSE file for more information.
 
+---
 
-## 🤝 Contribuciones
-Las contribuciones son bienvenidas. Por favor, abre un issue o envía un pull request con mejoras o correcciones.
+## 🤝 Contributions
+Contributions are welcome. Please open an issue or submit a pull request with improvements or corrections.
 
+See CONTRIBUTING.md for more details.
 
-⚠Advertencia: No subas a este repositorio archivos con credenciales reales (*.pw) ni logs con información sensible.
-
+> ⚠ Warning: Do not upload files with real credentials (*.pw) or logs with sensitive information to this repository.

@@ -1,16 +1,16 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
-# ========= utilidades de seguridad y manejo de errores =========
+# ========= Security and error handling utilities =========
 abort() {
   echo "ERROR: $*" >&2
   exit 1
 }
-trap 'abort "Fallo en la línea $LINENO (comando: $BASH_COMMAND)"' ERR
+trap 'abort "Failed on line $LINENO (command: $BASH_COMMAND)"' ERR
 
 require_root() {
   if [[ ${EUID:-$(id -u)} -ne 0 ]]; then
-    abort "Ejecuta este script como root (sudo)."
+    abort "Run this script as root (sudo)."
   fi
 }
 
@@ -18,12 +18,12 @@ prompt() {
   local var="$1" msg="$2" def="${3-}"
   local input
   if [[ -n "$def" ]]; then
-    read -r -p "$msg [$def]: " input || abort "Entrada cancelada"
+    read -r -p "$msg [$def]: " input || abort "Input canceled"
     input="${input:-$def}"
   else
-    read -r -p "$msg: " input || abort "Entrada cancelada"
+    read -r -p "$msg: " input || abort "Input canceled"
   fi
-  [[ -n "$input" ]] || abort "El valor no puede estar vacío."
+  [[ -n "$input" ]] || abort "Value cannot be empty."
   printf -v "$var" '%s' "$input"
 }
 
@@ -42,10 +42,10 @@ prompt_secret_to_file() {
 
   local secret=''
   while true; do
-    read -r -s -p "$prompt_msg: " secret || abort "Entrada cancelada"
+    read -r -s -p "$prompt_msg: " secret || abort "Input canceled"
     echo
     [[ -n "$secret" ]] && break
-    echo "El valor no puede estar vacío."
+    echo "Value cannot be empty."
   done
 
   umask 177
@@ -79,52 +79,52 @@ msmtp_supports_from_fields() {
   dpkg --compare-versions "$v" ge "1.8.8"
 }
 
-# ===================== flujo principal =====================
+# ===================== Main flow =====================
 require_root
 
-echo "==> Instalando paquetes requeridos"
+echo "==> Installing required packages"
 ensure_pkg ca-certificates msmtp msmtp-mta mailutils apparmor apparmor-utils
 
-echo "==> Verificando bundle de CA"
+echo "==> Checking CA bundle"
 if [[ ! -s /etc/ssl/certs/ca-certificates.crt ]]; then
-  echo "Bundle de CA ausente o vacío. Reinstalando..."
+  echo "CA bundle missing or empty. Reinstalling..."
   apt-get install -y --reinstall ca-certificates
   update-ca-certificates
 fi
 
-echo "==> Habilitando AppArmor para msmtp (enforce)"
+echo "==> Enabling AppArmor for msmtp (enforce)"
 ensure_apparmor_enforce
 
-echo "==> Preparando directorio y archivo de log compatibles con AppArmor"
+echo "==> Preparing AppArmor-compatible log directory and file"
 install -d -m 750 -o root -g adm /var/log/msmtp
 touch /var/log/msmtp/msmtp.log
 chown root:adm /var/log/msmtp/msmtp.log
 chmod 640 /var/log/msmtp/msmtp.log
 
-# ========= recopilar datos de configuración =========
-echo "==> Recopilando parámetros de la cuenta SMTP por defecto"
-prompt SMTP_HOST      "Servidor SMTP (host)" "smtp.example.com"
-prompt SMTP_PORT      "Puerto SMTP" "587"
-prompt FROM_ADDR      "Dirección From por defecto" "no-reply@midominio.com"
-prompt FROM_NAME      "Nombre completo del remitente (From Full Name)" "Midominio Notificaciones"
-prompt SMTP_USER      "Usuario SMTP" "$FROM_ADDR"
+# ========= Collect configuration data =========
+echo "==> Collecting default SMTP account parameters"
+prompt SMTP_HOST      "SMTP server (host)" "smtp.example.com"
+prompt SMTP_PORT      "SMTP port" "587"
+prompt FROM_ADDR      "Default From address" "no-reply@midominio.com"
+prompt FROM_NAME      "Sender's full name (From Full Name)" "Notifications Midominio"
+prompt SMTP_USER      "SMTP user" "$FROM_ADDR"
 
 TLS_MODE="starttls"
 if [[ "$SMTP_PORT" == "465" ]]; then
   TLS_MODE="smtps"
 fi
 
-echo "==> Definiendo ubicación de la contraseña segura"
-prompt SECRET_FILE "Nombre de archivo de contraseña (sin ruta)" "default.pw"
+echo "==> Defining location of the secure password file"
+prompt SECRET_FILE "Name of password file (without path)" "default.pw"
 SECRET_PATH="/etc/msmtp/$SECRET_FILE"
-prompt_secret_to_file "$SECRET_PATH" "Introduce la contraseña (o App Password) SMTP"
+prompt_secret_to_file "$SECRET_PATH" "Enter SMTP password (or App Password)"
 
-# ========= generar /etc/msmtprc =========
-echo "==> Generando /etc/msmtprc con plantilla segura"
+# ========= Generate /etc/msmtprc =========
+echo "==> Generating /etc/msmtprc with secure template"
 umask 177
 {
   echo "# ========================="
-  echo "# Configuración global"
+  echo "# Global configuration"
   echo "# ========================="
   echo "defaults"
   echo "auth                 on"
@@ -143,7 +143,7 @@ umask 177
   fi
   echo
   echo "# ========================="
-  echo "# Cuenta por defecto"
+  echo "# Default account"
   echo "# ========================="
   echo "account              default"
   echo "host                 $SMTP_HOST"
@@ -159,32 +159,32 @@ umask 177
 chown root:root /etc/msmtprc
 chmod 600 /etc/msmtprc
 
-# ========= prueba de envío integrada =========
-echo "==> Realizando prueba de envío integrada"
-read -r -p "Introduce el correo de destino para la prueba: " TEST_RECIPIENT
+# ========= Integrated send test =========
+echo "==> Performing integrated send test"
+read -r -p "Enter the recipient email for the test: " TEST_RECIPIENT
 TEST_LOG="/var/log/msmtp/test_send_mail.log"
 TMPMSG="$(mktemp /tmp/msmtp-test.XXXXXX)"
 
 {
   echo "To: $TEST_RECIPIENT"
-  echo "Subject: Prueba msmtp - $(hostname)"
+  echo "Subject: msmtp test - $(hostname)"
   echo
-  echo "Hola,"
+  echo "Hello,"
   echo
-  echo "Este es un mensaje de prueba enviado con msmtp."
-  echo "Fecha: $(date -Is)"
+  echo "This is a test message sent with msmtp."
+  echo "Date: $(date -Is)"
   echo "Host: $(hostname -f 2>/dev/null || hostname)"
   echo
-  echo "Si recibes este mensaje, la configuración es correcta."
+  echo "If you receive this message, the configuration is correct."
 } > "$TMPMSG"
 
 if msmtp --debug -a default -t < "$TMPMSG" 2>&1 | tee "$TEST_LOG"; then
-  echo "==> Mensaje enviado. Revisa el buzón de $TEST_RECIPIENT"
+  echo "==> Message sent. Check the mailbox of $TEST_RECIPIENT"
 else
-  echo "ERROR: Fallo en el envío. Revisa $TEST_LOG para más detalles."
+  echo "ERROR: Sending failed. Check $TEST_LOG for details."
 fi
 
 rm -f "$TMPMSG"
-echo "==> Log de prueba guardado en: $TEST_LOG"
+echo "==> Test log saved to: $TEST_LOG"
 
-echo "==> Instalación y prueba completadas."
+echo "==> Installation and testing completed."

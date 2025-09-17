@@ -1,84 +1,93 @@
-# Configuración de AppArmor para msmtp
+# Configuring AppArmor for msmtp
 
-Este documento explica cómo mantener `msmtp` confinado con AppArmor y permitir el registro en rutas seguras.
+This document explains how to keep `msmtp` confined with AppArmor and allow logging to secure paths.
 
-## 📍 Estado del perfil
+---
 
-Para verificar si `msmtp` está confinado:
+## 📍 Profile Status
+
+To check if `msmtp` is confined:
 
 ```bash
 sudo aa-status | grep msmtp
 ```
 
-Salida esperada:
+Expected Output:
 
 ```bash
 msmtp
 msmtp//helpers
 ```
 
+---
 
-## 📂 Rutas permitidas por defecto
+## 📂 Default Allowed Paths
 
-El perfil /etc/apparmor.d/usr.bin.msmtp permite:
+The `/etc/apparmor.d/usr.bin.msmtp` profile allows:
 
-- Archivos de log en $HOME del usuario (~/.msmtp*.log).
+- Log files in the user's `$HOME` (`~/.msmtp*.log`).
 
-- Directorio /var/log/msmtp/ (no archivos sueltos en /var/log).
+- The `/var/log/msmtp/` directory (not individual files in `/var/log`).
 
+---
 
-## ➕ Añadir permisos para logs
-Se recomienda registrar en /var/log/msmtp/msmtp.log en vez de en el $HOME, a fin de preservar la seguridad e integridad de los registros:
+## ➕ Add permissions for logs
+It is recommended to log to `/var/log/msmtp/msmtp.log` instead of `$HOME`, to preserve the security and integrity of the logs:
 
-1. Crear override local:
+1. Create a local override:
 
-    ```bash
-    sudo mkdir -p /etc/apparmor.d/local
-    sudo nano /etc/apparmor.d/local/usr.bin.msmtp
-    ```
+```bash
+sudo mkdir -p /etc/apparmor.d/local
+sudo nano /etc/apparmor.d/local/usr.bin.msmtp
+```
 
-2. Añadir reglas:
+2. Add rules:
 
-    ```bash
-    /var/log/msmtp/ rw,
-    /var/log/msmtp/msmtp.log rwk,
-    ```
+```bash
+/var/log/msmtp/ rw,
+/var/log/msmtp/msmtp.log rwk,
+```
 
-3. Recargar perfil:
+3. Reload profile:
 
-    ```bash
-    sudo apparmor_parser -r /etc/apparmor.d/usr.bin.msmtp
-    ```
+```bash
+sudo apparmor_parser -r /etc/apparmor.d/usr.bin.msmtp
+```
 
+---
 
-## 🛠 Modos de operación
+## 🛠 Operation modes
 
-* Enforce: bloquea accesos no permitidos y los registra.
+* Enforce: Blocks disallowed access and logs them.
 
 ```bash
 sudo aa-enforce /usr/bin/msmtp
 ```
 
-* Complain: permite accesos pero registra violaciones (útil para depuración).
+* Complain: Allows access but logs violations (useful for debugging).
 
 ```bash
 sudo aa-complain /usr/bin/msmtp
 ```
 
-## 📌 Consejos
+---
 
-* Mantener msmtp en modo enforce en producción.
+## 📌 Tips
 
-* Usar overrides locales para personalizar rutas sin modificar el perfil principal.
+* Keep `msmtp` in enforce mode in production.
 
-* Revisar denegaciones con:
+* Use local overrides to customize paths without modifying the main profile.
+
+* Check for denials with:
 
 ```bash
 sudo journalctl -k | grep -i apparmor | grep msmtp
 ```
 
-## 📚 Referencias
+---
 
-* [Manual oficial de msmtp](https://marlam.de/msmtp/msmtp.html)
+## 📚 References
 
-* [Documentación de AppArmor en Ubuntu](https://documentation.ubuntu.com/server/how-to/security/apparmor/)
+* [Official msmtp manual](https://marlam.de/msmtp/msmtp.html)
+
+* [AppArmor documentation on Ubuntu](https://documentation.ubuntu.com/server/how-to/security/apparmor/)
