@@ -4,11 +4,14 @@ ENV container docker
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Install only essential packages for a minimal Ubuntu Server with SSH access
+# Added iproute2 and netcat-openbsd for healthcheck support
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
         systemd systemd-sysv \
         openssh-server \
         sudo \
+        iproute2 \
+        netcat-openbsd \
     && apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 

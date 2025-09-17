@@ -62,7 +62,7 @@ Once inside `dev-env/`, you can proceed with the usage instructions below.
 
 ### 1. Make the helper script executable (first time only)
 ```bash
-./msmtp_dev_env.sh
+chmod +x msmtp_dev_env.sh
 ```
 
 ### 2. Start and connect as `devuser`
