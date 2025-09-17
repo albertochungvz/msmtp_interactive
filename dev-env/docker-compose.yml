@@ -1,0 +1,25 @@
+version: "3.9"
+
+services:
+  msmtp_dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: msmtp_dev
+    privileged: true
+    security_opt:
+      - apparmor=unconfined
+    tmpfs:
+      - /run
+      - /run/lock
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:rw
+    ports:
+      - "2222:22"   # Host:Container for SSH
+    restart: unless-stopped
+    tty: true
+    healthcheck:
+      test: ["CMD-SHELL", "ss -tnlp | grep -q ':22 '"]
+      interval: 5s
+      timeout: 3s
+      retries: 5

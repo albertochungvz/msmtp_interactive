@@ -16,6 +16,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0
 ### Removed
 - N/A
 
+## [0.3] - 2025-09-17
+### Added
+- Development environment files and documentation
+
+### Changed
+- N/A
+
+### Fixed
+- N/A
+
+### Removed
+- N/A
 
 ## [0.2] - 2025-09-16
 ### Added

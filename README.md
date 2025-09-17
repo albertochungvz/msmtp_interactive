@@ -36,30 +36,36 @@ This project provides a reproducible and interactive Bash script to install and 
 ```bash
 msmtp-setup/
 ├── config/
-│ └── msmtprc.template # Template with expected variables
+│       └── msmtprc.template    # Template with expected variables
+│
+├── dev-env/                    # Setup a dev environment using Docker
+│       ├── docker-compose.yml
+│       ├── Dockerfile
+│       ├── msmtp_dev_env.sh
+│       └── README.md
 │
 ├── docs/
 │ ├── USAGE.md 
 │ ├── SECURITY.md 
 │ ├── APPARMOR.md 
 │ │
-│ └── es/                   # Official Spanish translations
-│       ├── APPARMOR.md     # Spanish AppArmor configuration
+│ └── es/                       # Official Spanish translations
+│       ├── APPARMOR.md         # Spanish AppArmor configuration
 │       ├── CHANGELOG.md
 │       ├── CONTRIBUTING.md
 │       ├── README.md
-│       ├── SECURITY.md     # Spanish security notes
-│       └── USAGE.md        # Spanish usage guide
+│       ├── SECURITY.md         # Spanish security notes
+│       └── USAGE.md            # Spanish usage guide
 │
 ├── tests/
-│ └── test_send_mail.sh     # Standalone test script with commented header
-├── .gitattributes          # Normalizes line endings, marks binaries
-├── .gitignore              # Ignores credentials, logs, and temps
-├── CHANGELOG.md            # Changelog (initial v0.1)
-├── CONTRIBUTING.md         # Guide contribution
-├── LICENSE                 # Bilingual MIT (official English + translation)
-├── README.md               # Main script in English, link to docs/es/README.md
-└── install_msmtp_armored.sh # Main script with secure installation and integrated testing
+│       └── test_send_mail.sh   # Standalone test script with commented header
+├── .gitattributes              # Normalizes line endings, marks binaries
+├── .gitignore                  # Ignores credentials, logs, and temps
+├── CHANGELOG.md                # Changelog (initial v0.1)
+├── CONTRIBUTING.md             # Guide contribution
+├── LICENSE                     # Bilingual MIT (official English + translation)
+├── README.md                   # Main script in English, link to docs/es/README.md
+└── install_msmtp_armored.sh    # Main script with secure installation and integrated testing
 ```
 
 ---

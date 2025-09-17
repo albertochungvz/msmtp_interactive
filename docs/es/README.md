@@ -38,6 +38,12 @@ msmtp-setup/
 ├── config/
 │   └── msmtprc.template            # Plantilla con variables esperadas
 │
+├── dev-env/                        # Configura un entorno de desarrollo usando Docker
+│       ├── docker-compose.yml
+│       ├── Dockerfile
+│       ├── msmtp_dev_env.sh
+│       └── README.md
+│
 ├── docs/
 │   ├── USAGE.md                    # Guía de uso en inglés
 │   ├── SECURITY.md                 # Notas de seguridad en inglés
