@@ -59,7 +59,7 @@ msmtp-setup/
 ├── CONTRIBUTING.md                 # Guía de contribución
 ├── LICENSE                         # MIT bilingüe (inglés oficial + traducción)
 ├── README.md                       # Principal en inglés, enlace a docs/es/README.md
-└── install_msmtp_secure.sh         # Script principal con instalación segura y prueba integrada
+└── install_msmtp_armored.sh         # Script principal con instalación segura y prueba integrada
 ```
 
 ---
@@ -69,10 +69,10 @@ msmtp-setup/
 Clona el repositorio y ejecuta el script:
 
 ```bash
-git clone https://github.com/albertochungvz/msmtp-setup.git
+git clone https://github.com/albertochungvz/msmtp_interactive.git
 cd msmtp-setup
-chmod +x install_msmtp_secure.sh
-sudo ./install_msmtp_secure.sh
+chmod +x install_msmtp_armored.sh
+sudo ./install_msmtp_armored.sh
 ```
 
 Durante la ejecución, el script te pedirá:

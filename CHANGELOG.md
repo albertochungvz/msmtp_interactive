@@ -34,7 +34,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0
 ## [0.1] - 2025-09-16
 ### Added
 - Initial repository structure with `config/`, `docs/`, and `tests/` folders.
-- Main script `install_msmtp_secure.sh` with:
+- Main script `install_msmtp_armored.sh` with:
 - Secure installation of msmtp and dependencies.
 - Configuration via the `config/msmtprc.template` template.
 - Integration with AppArmor.

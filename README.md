@@ -59,7 +59,7 @@ msmtp-setup/
 ├── CONTRIBUTING.md         # Guide contribution
 ├── LICENSE                 # Bilingual MIT (official English + translation)
 ├── README.md               # Main script in English, link to docs/es/README.md
-└── install_msmtp_secure.sh # Main script with secure installation and integrated testing
+└── install_msmtp_armored.sh # Main script with secure installation and integrated testing
 ```
 
 ---
@@ -69,10 +69,10 @@ msmtp-setup/
 Clone the repository and run the script:
 
 ```bash
-git clone https://github.com/YOUR_USER/msmtp-setup.git
+git clone https://github.com/albertochungvz/msmtp_interactive.git
 cd msmtp-setup
-chmod +x install_msmtp_secure.sh
-sudo ./install_msmtp_secure.sh
+chmod +x install_msmtp_armored.sh
+sudo ./install_msmtp_armored.sh
 ```
 
 During execution, the script will prompt you for:
@@ -88,8 +88,8 @@ During execution, the script will prompt you for:
 ## 🛡 Security
 
 - Plain text passwords are not saved in the history or across processes.
-- The log is stored in /var/log/msmtp/msmtp.log with restrictive permissions.
-- AppArmor is kept in enforce mode for msmtp.
+- The log is stored in `/var/log/msmtp/msmtp.log` with restrictive permissions.
+- AppArmor is kept in *enforce mode* for `msmtp`.
 - The SMTP server's TLS certificate is validated.
 
 See [SECURITY.md](/docs/SECURITY.md) for more details.
