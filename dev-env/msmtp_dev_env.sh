@@ -45,4 +45,4 @@ until [ "$(docker inspect --format='{{.State.Health.Status}}' ${CONTAINER_NAME} 
 done
 
 echo "✅ Container is ready. Connecting via SSH as ${SSH_USER}..."
-ssh -o StrictHostKeyChecking=no -p ${SSH_PORT} ${SSH_USER}@localhost
+#ssh -o StrictHostKeyChecking=no -p ${SSH_PORT} ${SSH_USER}@localhost

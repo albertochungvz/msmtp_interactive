@@ -23,19 +23,24 @@ git clone https://github.com/albertochungvz/msmtp_interactive.git
 cd msmtp_interactive/dev-env
 ```
 
-### Option 2 — Sparse checkout (only dev-env folder)
+### Option 2 — Sparse checkout (only `dev-env` folder)
 This method avoids downloading the entire working tree initially (recommended):
 
 ```bash
-# Clone the repository without checking out files
-git clone --no-checkout https://github.com/albertochungvz/msmtp_interactive.git
+# 1) Clone without checking out files, and avoid blobs to save time/space
+git clone --filter=blob:none --no-checkout https://github.com/albertochungvz/msmtp_interactive.git
 cd msmtp_interactive
 
-# Enable sparse checkout in cone mode
+# 2) Enable sparse checkout (cone mode keeps it simple and predictable)
 git sparse-checkout init --cone
 
-# Set sparse checkout to only include dev-env folder
+# 3) Select only the dev-env folder
 git sparse-checkout set dev-env
+
+# 4) Perform the initial checkout to materialize files
+git checkout @
+# Alternative if @ is unfamiliar:
+# git read-tree -mu HEAD
 
 # Move into the dev-env folder
 cd dev-env
@@ -55,24 +60,25 @@ Once inside `dev-env/`, you can proceed with the usage instructions below.
 
 ## 🚀 Usage
 
-### 1. Start and connect as `devuser`
+### 1. Make the helper script executable (first time only)
 ```bash
-cd dev-env
 ./msmtp_dev_env.sh
 ```
 
+### 2. Start and connect as `devuser`
+```bash
+./msmtp_dev_env.sh --root
+```
 Password: `devpass`
 
-### 2. Start and connect as root
+### 3. Start and connect as root
 ```bash
-cd dev-env
 ./msmtp_dev_env.sh --root
 ```
 Password: `rootpass`
 
 ### 3. Stop and remove the container
 ```bash
-cd dev-env
 ./msmtp_dev_env.sh --stop
 ```
 
@@ -93,11 +99,11 @@ sudo ./install_msmtp_armored.sh
 ---
 
 ## ⚙️ Healthcheck
-The docker-compose.yml includes a healthcheck that waits for SSH to be ready before allowing the helper script to connect. The helper script (`msmtp_dev_env.sh`) will not attempt to connect until the container is marked as healthy.
+The docker-compose.yml includes a healthcheck that waits for SSH to be ready before allowing the helper script to connect. The helper script (`msmtp_dev_env.sh`) will not attempt to connect until the container is marked as `healthy`.
 
 ---
 
-🔒 Security Notes
+## 🔒 Security Notes
 
 - This environment is intended for **local development and testing only**.
 - The root and devuser passwords are hardcoded for convenience — **do not use in production**.
@@ -105,14 +111,14 @@ The docker-compose.yml includes a healthcheck that waits for SSH to be ready bef
 
 ---
 
-📌 Requirements
+## 📌 Requirements
 
 - Docker Engine and Docker Compose v2 installed on the host.
 - Host system with AppArmor support enabled if you want to test full AppArmor functionality.
 
 ---
 
-🛑 Cleanup
+## 🛑 Cleanup
 
 To remove all traces of the container and its volumes:
 
@@ -120,3 +126,59 @@ To remove all traces of the container and its volumes:
 cd dev-env
 docker compose down -v
 ```
+
+---
+
+## 🛠 Troubleshooting
+
+### Permission denied when running `./msmtp_dev_env.sh`
+This means the script is not marked as executable. Fix:
+
+```bash
+chmod +x msmtp_dev_env.sh
+```
+
+Then run it again:
+```bash
+./msmtp_dev_env.sh
+```
+
+If the folder is on a filesystem mounted with noexec, run it with:
+```bash
+bash msmtp_dev_env.sh
+```
+
+### Sparse checkout leaves folder empty
+If after running the sparse checkout commands the `dev-env` folder is empty:
+
+1. Ensure you are on a branch that contains dev-env.
+2. Run:
+    ```bash
+    git checkout @
+    ```
+    or:
+    ```bash
+    git read-tree -mu HEAD
+    ```
+3.Verify the path is correct and case-sensitive: `dev-env`
+
+Also verify that:
+- You are on a branch that contains the dev-env folder.
+- The path `dev-env` is correctly spelled.
+- Your Git version is 2.25 or newer.
+
+
+### SSH connection refused
+
+- Ensure the container is running:
+    ```bash
+    docker ps
+    ```
+- Check health status:
+    ```bash
+    docker inspect --format='{{.State.Health.Status}}' msmtp_dev
+    ```
+- If not healthy, check logs:
+    ```bash
+    docker logs msmtp_dev
+    ```
