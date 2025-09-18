@@ -57,7 +57,7 @@ msmtp-setup/
 │       ├── SECURITY.md             # Notas de seguridad en español
 │       └── USAGE.md                # Guía de uso en español
 │
-├── tests/
+├── test/
 │   └── test_send_mail.sh           # Script de prueba independiente con encabezado comentado
 ├── .gitattributes                  # Normaliza finales de línea, marca binarios
 ├── .gitignore                      # Ignora credenciales, logs, temporales

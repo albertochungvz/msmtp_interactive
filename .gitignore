@@ -51,6 +51,6 @@ Thumbs.db
 # =========================
 
 # Automated test outputs
-tests/output/
+test/output/
 # Temporary test files
 msmtp-test.*

@@ -33,7 +33,7 @@ El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1
 
 ## [0.1] - 2025-09-16
 ### Añadido
-- Estructura inicial del repositorio con carpetas `config/`, `docs/` y `tests/`.
+- Estructura inicial del repositorio con carpetas `config/`, `docs/` y `test/`.
 - Script principal `install_msmtp_secure.sh` con:
   - Instalación segura de msmtp y dependencias.
   - Configuración vía plantilla `config/msmtprc.template`.
@@ -45,7 +45,7 @@ El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1
   - `docs/SECURITY.md` con medidas de seguridad.
   - `docs/APPARMOR.md` con configuración y overrides.
 - Scripts auxiliares:
-  - `tests/test_send_mail.sh` para pruebas independientes.
+  - `test/test_send_mail.sh` para pruebas independientes.
 - Archivos de control:
   - `.gitignore` adaptado para evitar subir credenciales y logs.
   - `.gitattributes` para normalizar finales de línea y proteger plantillas.

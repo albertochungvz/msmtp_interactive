@@ -45,9 +45,11 @@ msmtp-setup/
 │       └── README.md
 │
 ├── docs/
-│ ├── USAGE.md 
+│ ├── APPARMOR.md
+│ ├── DEV_GUIDE.md
+│ ├── Quick_start.md
 │ ├── SECURITY.md 
-│ ├── APPARMOR.md 
+│ ├── USAGE.md
 │ │
 │ └── es/                       # Official Spanish translations
 │       ├── APPARMOR.md         # Spanish AppArmor configuration
@@ -57,8 +59,34 @@ msmtp-setup/
 │       ├── SECURITY.md         # Spanish security notes
 │       └── USAGE.md            # Spanish usage guide
 │
-├── tests/
+├── env-accounts/
+│       ├── gmail.env
+│       ├── gmail1.env
+│       ├── README.md
+│       ├── sendgrid1.env
+│       ├── ses1.env
+│       └── work.env
+│
+├── modules/
+│       ├── .env
+│       ├── account_duplicates_validator.sh
+│       ├── apparmor.sh
+│       ├── config_generator.sh
+│       ├── list_accounts.sh
+│       ├── pkg_install.sh
+│       ├── README.md
+│       ├── smtp_audit.sh
+│       ├── smtp_presets_validator.sh
+│       ├── smtp_presets.sh
+│       ├── smtp_test.sh
+│       └── utils.sh
+│
+├── test/
+│       ├── quick_test.sh
+│       ├── README.md
 │       └── test_send_mail.sh   # Standalone test script with commented header
+│
+├── .env
 ├── .gitattributes              # Normalizes line endings, marks binaries
 ├── .gitignore                  # Ignores credentials, logs, and temps
 ├── CHANGELOG.md                # Changelog (initial v0.1)

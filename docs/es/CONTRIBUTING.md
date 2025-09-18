@@ -30,7 +30,7 @@ Puedes contribuir de varias formas:
    ```
 
 3. Realiza tus cambios siguiendo las guías de estilo.
-4. Ejecuta las pruebas (`tests/test_send_mail.sh`) y verifica que todo funciona.
+4. Ejecuta las pruebas (`test/test_send_mail.sh`) y verifica que todo funciona.
 5. Actualiza la documentación si es necesario.
 6. Actualiza el `CHANGELOG.md`:
     - Añade tus cambios en la sección [Unreleased] bajo la categoría orrespondiente (Added, Changed, Fixed, Removed).
@@ -83,7 +83,7 @@ feat: añadir validación de versión de msmtp en script principal
 
 Antes de enviar cambios:
 
-- Ejecuta `tests/test_send_mail.sh` para validar el envío.
+- Ejecuta `test/test_send_mail.sh` para validar el envío.
 - Verifica que no se rompa la instalación en limpio.
 - Comprueba que los permisos y rutas cumplen las guías de seguridad.
 

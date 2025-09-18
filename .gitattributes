@@ -8,7 +8,7 @@
 *.template   text eol=lf
 *.conf       text eol=lf
 *.txt        text eol=lf
-tests/*.sh   text eol=lf
+test/*.sh   text eol=lf
 
 
 # =========================
@@ -36,4 +36,4 @@ config/msmtprc.template text eol=lf
 # =========================
 
 # Prevent Git from trying to convert line endings in test scripts
-tests/*.sh   text eol=lf
+test/*.sh   text eol=lf

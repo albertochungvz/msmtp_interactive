@@ -30,7 +30,7 @@ git checkout -b fix/friendly-name
 
 
 3. Make your changes following the style guides.
-4. Run the tests (tests/test_send_mail.sh) and verify that everything works.
+4. Run the tests (test/test_send_mail.sh) and verify that everything works.
 5. Update the documentation if necessary.
 6. Update the CHANGELOG.md:
 - Add your changes to the [Unreleased] section under the appropriate category (Added, Changed, Fixed, Removed).
@@ -83,7 +83,7 @@ feat: Add msmtp version validation in main script
 
 Before submitting changes:
 
-- Run `tests/test_send_mail.sh` to validate the submission.
+- Run `test/test_send_mail.sh` to validate the submission.
 - Verify that the clean install doesn't break.
 - Check that permissions and paths comply with security guidelines.
 
