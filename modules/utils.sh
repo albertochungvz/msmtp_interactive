@@ -181,9 +181,22 @@ abs_path() {
     if [[ -d "$path" ]]; then
         (cd "$path" && pwd -P)
     else
-        (cd "$(dirname "$path")" && pwd -P)/$(basename "$path")
+        echo "$(cd "$(dirname "$path")" && pwd -P)/$(basename "$path")"
     fi
 }
+
+# ----- Get the absolute directory of the current script -----
+get_script_dir() {
+    local src="${BASH_SOURCE[0]}"
+    while [ -h "$src" ]; do
+        local dir
+        dir="$(cd -P -- "$(dirname -- "$src")" && pwd)"
+        src="$(readlink -- "$src")"
+        [[ $src != /* ]] && src="$dir/$src"
+    done
+    cd -P -- "$(dirname -- "$src")" && pwd
+}
+
 
 # ----- Safe run of a command with description -----
 safe_run() {
@@ -236,7 +249,9 @@ cleanup_on_exit() {
         rm -f "${TMP_FILES_TRACKER:-/tmp/msmtp_installer.tmpfiles}"
     fi
     # Remove state file
-    [[ -f "$STATE_FILE" ]] && rm -
+    [[ -f "$STATE_FILE" ]] && rm -f "$STATE_FILE"
+    log_info "Cleanup complete."
+}
 
 select_option() {
     local prompt="$1"
@@ -260,4 +275,24 @@ select_option() {
             echo "Invalid selection."
         fi
     done
+}
+
+# --- Load .env global if present ---
+load_env_file() {
+    local env_file=""
+    local script_dir
+    script_dir="$(get_script_dir)"
+
+    if [[ -f "$script_dir/.env" ]]; then
+        env_file="$script_dir/.env"
+    elif [[ -f ".env" ]]; then
+        env_file=".env"
+    fi
+
+    if [[ -n "$env_file" ]]; then
+        log_info "Loading environment variables from $env_file"
+        set -a
+        source "$env_file"
+        set +a
+    fi
 }

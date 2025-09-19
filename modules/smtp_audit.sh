@@ -19,24 +19,11 @@
 
 set -euo pipefail
 
-source "$(dirname "$0")/utils.sh"
-source "$(dirname "$0")/smtp_presets.sh"
-source "$(dirname "$0")/list_accounts.sh"
-
-load_env_file() {
-    local env_file=""
-    if [[ -f "$(dirname "$0")/.env" ]]; then
-        env_file="$(dirname "$0")/.env"
-    elif [[ -f ".env" ]]; then
-        env_file=".env"
-    fi
-    if [[ -n "$env_file" ]]; then
-        log_info "smtp_audit: loading environment variables from $env_file"
-        set -a
-        source "$env_file"
-        set +a
-    fi
-}
+# Resolve this script's directory and load utilities
+SCRIPT_DIR="$(get_script_dir)"
+source "$SCRIPT_DIR/utils.sh"
+source "$SCRIPT_DIR/smtp_presets.sh"
+source "$SCRIPT_DIR/list_accounts.sh"
 
 test_smtp_connectivity() {
     local account="$1" host="$2" port="$3" tls="$4"

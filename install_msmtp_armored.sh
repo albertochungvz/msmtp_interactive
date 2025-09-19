@@ -1,17 +1,25 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
-SCRIPT_DIR="$(cd -- "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
+
+# Bbootstrap fase: solving installer directory for loading utils.sh
+INSTALLER_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)"
+
+# Load utils.sh from installer directory
+source "$INSTALLER_DIR/modules/utils.sh"
+
+# get_script_dir points to modules/
+MODULES_DIR="$(get_script_dir)"
 
 # Load modules
-source "$SCRIPT_DIR/modules/utils.sh"
-source "$SCRIPT_DIR/modules/pkg_install.sh"
-source "$SCRIPT_DIR/modules/apparmor.sh"
-source "$SCRIPT_DIR/modules/msmtp_version.sh"
-source "$SCRIPT_DIR/modules/config_generator.sh"
-source "$SCRIPT_DIR/modules/smtp_audit.sh"
-source "$SCRIPT_DIR/modules/list_accounts.sh"
-source "$SCRIPT_DIR/modules/smtp_test.sh"
-source "$SCRIPT_DIR/modules/summary.sh"
+source "$MODULES_DIR/modules/utils.sh"
+source "$MODULES_DIR/modules/pkg_install.sh"
+source "$MODULES_DIR/modules/apparmor.sh"
+source "$MODULES_DIR/modules/msmtp_version.sh"
+source "$MODULES_DIR/modules/config_generator.sh"
+source "$MODULES_DIR/modules/smtp_audit.sh"
+source "$MODULES_DIR/modules/list_accounts.sh"
+source "$MODULES_DIR/modules/smtp_test.sh"
+source "$MODULES_DIR/modules/summary.sh"
 
 # Main flow
 require_root

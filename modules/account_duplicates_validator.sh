@@ -8,22 +8,10 @@
 # - Or a provided config file via ACCOUNT_CONFIG_FILE env var
 # ============================================================
 
-source "$(dirname "$0")/utils.sh"
-
-load_env_file() {
-    local env_file=""
-    if [[ -f "$(dirname "$0")/.env" ]]; then
-        env_file="$(dirname "$0")/.env"
-    elif [[ -f ".env" ]]; then
-        env_file=".env"
-    fi
-    if [[ -n "$env_file" ]]; then
-        log_info "account_duplicates_validator: loading environment variables from $env_file"
-        set -a
-        source "$env_file"
-        set +a
-    fi
-}
+#source "$(dirname "$0")/utils.sh"
+# Resolve this script's directory and load utilities
+SCRIPT_DIR="$(get_script_dir)"
+source "$SCRIPT_DIR/utils.sh"
 
 validate_account_duplicates() {
     section "Validating duplicate accounts (host, port, user)"

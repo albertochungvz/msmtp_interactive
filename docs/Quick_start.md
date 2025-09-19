@@ -28,7 +28,8 @@ sudo ./install_msmtp_armored.sh
 
 ![Flowchart showing the secure installation process: dependency setup, config generation, audit, SMTP tests, and final summary](img/install_flow_lr.svg)
 
-<details>
+<details markdown="block">
+<summary>Show Mermaid flowchart</summary>
 
 ```Mermaid
 flowchart TD
@@ -194,7 +195,8 @@ DRY_RUN=1 ./modules/config_generator.sh
 
 ![Flowchart of the quick_test.sh workflow for validating msmtp accounts: loads config, checks dependencies, runs audit, tests accounts, and summarizes results](img/quick_test_flow_LR.svg)
 
-<details>
+<details markdown="block">
+<summary>Show Quick Test flowchart</summary>
 
 ```Mermaid
 flowchart TD

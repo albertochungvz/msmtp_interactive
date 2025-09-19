@@ -10,22 +10,9 @@
 # - Provides list_accounts() function for reuse in other modules
 # ============================================================
 
-source "$(dirname "$0")/utils.sh"
-
-load_env_file() {
-    local env_file=""
-    if [[ -f "$(dirname "$0")/.env" ]]; then
-        env_file="$(dirname "$0")/.env"
-    elif [[ -f ".env" ]]; then
-        env_file=".env"
-    fi
-    if [[ -n "$env_file" ]]; then
-        log_info "list_accounts: loading environment variables from $env_file"
-        set -a
-        source "$env_file"
-        set +a
-    fi
-}
+# Resolve this script's directory and load utilities
+SCRIPT_DIR="$(get_script_dir)"
+source "$SCRIPT_DIR/utils.sh"
 
 # --- Core function to get accounts as plain list ---
 list_accounts() {

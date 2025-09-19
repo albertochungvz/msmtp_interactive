@@ -12,23 +12,10 @@
 # - Records results in set_state
 # ============================================================
 
-source "$(dirname "$0")/utils.sh"
-source "$(dirname "$0")/list_accounts.sh"
-
-load_env_file() {
-    local env_file=""
-    if [[ -f "$(dirname "$0")/.env" ]]; then
-        env_file="$(dirname "$0")/.env"
-    elif [[ -f ".env" ]]; then
-        env_file=".env"
-    fi
-    if [[ -n "$env_file" ]]; then
-        log_info "smtp_test: loading environment variables from $env_file"
-        set -a
-        source "$env_file"
-        set +a
-    fi
-}
+# Resolve this script's directory and load utilities
+SCRIPT_DIR="$(get_script_dir)"
+source "$SCRIPT_DIR/utils.sh"
+source "$SCRIPT_DIR/list_accounts.sh"
 
 send_test_email() {
     local account="$1"
@@ -95,7 +82,7 @@ smtp_test_main() {
     # Auditoría previa opcional
     if [[ "$run_audit" -eq 1 ]]; then
         log_info "smtp_test: running smtp_audit.sh before sending..."
-        if ! ACCOUNT_CONFIG_FILE="$config_file" "$(dirname "$0")/smtp_audit.sh" --report; then
+        if ! ACCOUNT_CONFIG_FILE="$config_file" "$SCRIPT_DIR/smtp_audit.sh" --report; then
             log_error "smtp_test: audit failed — aborting test"
             return 1
         fi

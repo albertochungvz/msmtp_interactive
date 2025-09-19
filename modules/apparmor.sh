@@ -9,23 +9,9 @@
 # - Records profile source, path, and hash
 # ============================================================
 
-source "$(dirname "$0")/utils.sh"
-
-# --- Load .env global if present ---
-load_env_file() {
-    local env_file=""
-    if [[ -f "$(dirname "$0")/.env" ]]; then
-        env_file="$(dirname "$0")/.env"
-    elif [[ -f ".env" ]]; then
-        env_file=".env"
-    fi
-    if [[ -n "$env_file" ]]; then
-        log_info "AppArmor: loading environment variables from $env_file"
-        set -a
-        source "$env_file"
-        set +a
-    fi
-}
+# Resolve this script's directory and load utilities
+SCRIPT_DIR="$(get_script_dir)"
+source "$SCRIPT_DIR/utils.sh"
 
 ensure_apparmor_profile() {
     section "Ensuring AppArmor profile for msmtp"

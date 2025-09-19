@@ -10,30 +10,16 @@
 # - Summary table and counts
 # ============================================================
 
-source "$(dirname "$0")/utils.sh"
-
-# --- Load .env global if present ---
-load_env_file() {
-    local env_file=""
-    if [[ -f "$(dirname "$0")/.env" ]]; then
-        env_file="$(dirname "$0")/.env"
-    elif [[ -f ".env" ]]; then
-        env_file=".env"
-    fi
-    if [[ -n "$env_file" ]]; then
-        log_info "smtp_presets_validator: loading environment variables from $env_file"
-        set -a
-        source "$env_file"
-        set +a
-    fi
-}
+# Resolve this script's directory and load utilities
+SCRIPT_DIR="$(get_script_dir)"
+source "$SCRIPT_DIR/utils.sh"
 
 validate_smtp_presets() {
     section "Validating smtp_presets.sh integrity"
 
     load_env_file
 
-    local presets_file="${SMTP_PRESETS_FILE:-$(dirname "$0")/smtp_presets.sh}"
+    local presets_file="${SMTP_PRESETS_FILE:-$SCRIPT_DIR/smtp_presets.sh}"
     local strict="${STRICT_VALIDATION:-1}"
     local errors=0
     local warnings=0

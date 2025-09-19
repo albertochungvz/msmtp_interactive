@@ -8,26 +8,12 @@
 # - Uses consistent logging and state recording
 # ============================================================
 
-source "$(dirname "$0")/utils.sh"
+# Resolve this script's directory and load utilities
+SCRIPT_DIR="$(get_script_dir)"
+source "$SCRIPT_DIR/utils.sh"
 
 # Minimum msmtp version required (optional check)
 MIN_MSMTP_VERSION="1.8.0"
-
-# --- Load .env global if present ---
-load_env_file() {
-    local env_file=""
-    if [[ -f "$(dirname "$0")/.env" ]]; then
-        env_file="$(dirname "$0")/.env"
-    elif [[ -f ".env" ]]; then
-        env_file=".env"
-    fi
-    if [[ -n "$env_file" ]]; then
-        log_info "pkg_install: loading environment variables from $env_file"
-        set -a
-        source "$env_file"
-        set +a
-    fi
-}
 
 check_connectivity() {
     section "Checking internet connectivity"
