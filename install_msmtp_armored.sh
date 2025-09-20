@@ -13,7 +13,6 @@ MODULES_DIR="$(get_script_dir)"
 # Load modules
 source "$MODULES_DIR/pkg_install.sh"
 source "$MODULES_DIR/apparmor.sh"
-source "$MODULES_DIR/msmtp_version.sh"
 source "$MODULES_DIR/config_generator.sh"
 source "$MODULES_DIR/smtp_audit.sh"
 source "$MODULES_DIR/list_accounts.sh"
