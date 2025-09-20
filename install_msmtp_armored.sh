@@ -11,15 +11,14 @@ source "$INSTALLER_DIR/modules/utils.sh"
 MODULES_DIR="$(get_script_dir)"
 
 # Load modules
-source "$MODULES_DIR/modules/utils.sh"
-source "$MODULES_DIR/modules/pkg_install.sh"
-source "$MODULES_DIR/modules/apparmor.sh"
-source "$MODULES_DIR/modules/msmtp_version.sh"
-source "$MODULES_DIR/modules/config_generator.sh"
-source "$MODULES_DIR/modules/smtp_audit.sh"
-source "$MODULES_DIR/modules/list_accounts.sh"
-source "$MODULES_DIR/modules/smtp_test.sh"
-source "$MODULES_DIR/modules/summary.sh"
+source "$MODULES_DIR/pkg_install.sh"
+source "$MODULES_DIR/apparmor.sh"
+source "$MODULES_DIR/msmtp_version.sh"
+source "$MODULES_DIR/config_generator.sh"
+source "$MODULES_DIR/smtp_audit.sh"
+source "$MODULES_DIR/list_accounts.sh"
+source "$MODULES_DIR/smtp_test.sh"
+source "$MODULES_DIR/summary.sh"
 
 # Main flow
 require_root
