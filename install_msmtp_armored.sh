@@ -10,20 +10,21 @@ source "$INSTALLER_DIR/modules/utils.sh"
 if [[ "${DEBUG:-0}" -eq 1 ]]; then
     section "DEBUG INFO"
     log_debug "Installer dir      : $INSTALLER_DIR"
-    log_debug "Modules dir        : $(get_script_dir)"
+    log_debug "Modules dir        : $(get_script_dir || echo '<error>')"
     log_debug "Script invoked as  : $0"
     log_debug "Current user       : $(id -u -n) (UID $(id -u))"
-    log_debug "Shell              : $SHELL"
+    log_debug "Shell              : ${SHELL:-<unknown>}"
     log_debug "Bash version       : $BASH_VERSION"
-    log_debug "Working directory  : $(pwd)"
+    log_debug "Working directory  : $(pwd || echo '<error>')"
     log_debug "Environment vars   : DRY_RUN=${DRY_RUN:-0}, NON_INTERACTIVE=${NON_INTERACTIVE:-0}, VERBOSE=${VERBOSE:-1}, DEBUG=${DEBUG:-0}"
     log_debug "PATH               : $PATH"
     if command -v apt-get >/dev/null 2>&1; then
-        log_debug "apt-get found at   : $(command -v apt-get)"
+        log_debug "apt-get found at   : $(command -v apt-get || echo '<error>')"
     else
         log_warn "apt-get not found in PATH"
     fi
 fi
+
 
 
 
