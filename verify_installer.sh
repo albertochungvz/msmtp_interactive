@@ -5,6 +5,8 @@ INSTALLER="install_msmtp_armored.sh"
 MODULE_DIR="modules"
 UTILS_FILE="$MODULE_DIR/utils.sh"
 errors=0
+ok_count=0
+undef_count=0
 
 echo "🔍  Validating coherence of $INSTALLER …"
 echo
@@ -28,15 +30,17 @@ echo "• Functions invoked:"
 grep -oP '\b[a-zA-Z_][a-zA-Z0-9_]*(?=\s*\(|\b)' "$INSTALLER" |
 grep -vE '^(if|then|else|fi|while|for|do|done|echo|read|source|bash|exit|printf|cd|ls|true|false)$' |
 grep -vP '^[A-Z0-9_]+$' |   # ignores constants like ACCOUNT, HOST, etc.
-grep -vP '^".*"$' |         # ignores strings in double quotes
-grep -vP "'.*'" |           # ignores strings in single quotes
+grep -vP '^".*"$' |         # ignores double-quoted strings
+grep -vP "'.*'" |           # ignores single-quoted strings
 sort -u |
 while read -r func; do
   printf "  - %s() … " "$func"
   if grep -R -qE "^\s*${func}\s*\(\)" "$MODULE_DIR" "$UTILS_FILE"; then
     echo "OK"
+    ok_count=$((ok_count+1))
   else
     echo "⚠️  NOT DEFINED"
+    undef_count=$((undef_count+1))
     grep -nE "(^|[^a-zA-Z0-9_])${func}(\s|\(|$)" "$INSTALLER" | sed "s/^/     /"
     suggestion=$(grep -R -hE '^[a-zA-Z_][a-zA-Z0-9_]*\s*\(\)' "$MODULE_DIR" "$UTILS_FILE" \
       | sed 's/().*//' \
@@ -71,8 +75,18 @@ while read -r func; do
 done
 echo
 
+# 3. Summary
+echo "📊 Summary:"
+echo "   Functions OK         : $ok_count"
+echo "   Functions NOT DEFINED: $undef_count"
+echo "   Missing modules      : $errors"
+echo
+
 if (( errors > 0 )); then
   echo "❌  Detected $errors missing module(s). Fix the installer or add the module file."
+  exit 1
+elif (( undef_count > 0 )); then
+  echo "⚠️  $undef_count undefined function(s) detected."
   exit 1
 else
   echo "✅  Installer and modules are coherent."
