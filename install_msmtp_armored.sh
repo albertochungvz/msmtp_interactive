@@ -7,6 +7,18 @@ INSTALLER_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)"
 # Load utils.sh from installer directory
 source "$INSTALLER_DIR/modules/utils.sh"
 
+if [[ "${DEBUG:-0}" -eq 1 ]]; then
+    log_debug "PKG_LIST=${PKG_LIST:-<default>}"
+    log_debug "Final package list: ${packages[*]}"
+    log_debug "Running as user: $(id -u -n) (UID $(id -u))"
+    if command -v apt-get >/dev/null 2>&1; then
+        log_debug "apt-get found at $(command -v apt-get)"
+    else
+        log_warn "apt-get not found in PATH"
+    fi
+fi
+
+
 # get_script_dir points to modules/
 MODULES_DIR="$(get_script_dir)"
 

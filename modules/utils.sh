@@ -206,8 +206,16 @@ get_script_dir() {
 # ----- Safe run of a command with description -----
 safe_run() {
     local desc="$1"; shift
-    "$@" || abort "Failed to $desc"
+    log_info "→ $desc: $*"
+    if [[ "${DEBUG:-0}" -eq 1 ]]; then
+        # Debug mode: show complete output
+        "$@" || abort "Failed to $desc"
+    else
+        # Normal mode: silent output
+        "$@" >/dev/null 2>&1 || abort "Failed to $desc"
+    fi
 }
+
 
 # ----- Section header -----
 section() {
