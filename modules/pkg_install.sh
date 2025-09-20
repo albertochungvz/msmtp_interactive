@@ -8,6 +8,8 @@
 # - Uses consistent logging and state recording
 # ============================================================
 
+set -Eeuo pipefail
+
 # Resolve this script's directory and load utilities
 SCRIPT_DIR="$(get_script_dir)"
 source "$SCRIPT_DIR/utils.sh"

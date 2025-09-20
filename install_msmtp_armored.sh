@@ -17,7 +17,6 @@ source "$MODULES_DIR/config_generator.sh"
 source "$MODULES_DIR/smtp_audit.sh"
 source "$MODULES_DIR/list_accounts.sh"
 source "$MODULES_DIR/smtp_test.sh"
-source "$MODULES_DIR/summary.sh"
 
 # Main flow
 require_root
@@ -27,10 +26,12 @@ install_dependencies
 check_ca_bundle
 
 section "Configuring AppArmor"
-enable_apparmor
+# enable_apparmor
+ensure_apparmor_profile
 
 section "Generating msmtp configuration (DRY_RUN=0)"
-generate_msmtp_config
+# generate_msmtp_config
+generate_msmtprc
 
 section "Auditing configuration"
 AUDIT_JSON="/tmp/smtp_audit_report.json"

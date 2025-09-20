@@ -17,7 +17,7 @@
 # - Report mode (--report) never fails the process
 # ============================================================
 
-set -euo pipefail
+set -Eeuo pipefail
 
 # Resolve this script's directory and load utilities
 SCRIPT_DIR="$(get_script_dir)"

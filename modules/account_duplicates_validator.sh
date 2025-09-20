@@ -8,6 +8,8 @@
 # - Or a provided config file via ACCOUNT_CONFIG_FILE env var
 # ============================================================
 
+set -Eeuo pipefail
+
 #source "$(dirname "$0")/utils.sh"
 # Resolve this script's directory and load utilities
 SCRIPT_DIR="$(get_script_dir)"

@@ -1,8 +1,13 @@
 #!/usr/bin/env bash
 # ============================================================
 # smtp_presets.sh - Predefined SMTP server configurations
-# Fuentes: Documentación oficial de cada proveedor (consultada septiembre 2025)
+# Fuentes: Official documentation of each supplier (accessed September 2025)
 # ============================================================
+
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+  set -Eeuo pipefail
+fi
+
 
 declare -A SMTP_PRESETS=(
     # Amazon SES (ajustar <region> según la cuenta)

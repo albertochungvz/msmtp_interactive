@@ -3,7 +3,7 @@
 # quick_test.sh - Fast end-to-end check of the SMTP toolkit
 # ============================================================
 
-set -euo pipefail
+set -Eeuo pipefail
 
 # Load utils and list_accounts
 source "$(dirname "$0")/../modules/utils.sh"

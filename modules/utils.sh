@@ -3,6 +3,11 @@
 # utils.sh - Common utility functions for the installer
 # ============================================================
 
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+  set -Eeuo pipefail
+fi
+
+
 # ----- Verbosity & modes -----
 : "${VERBOSE:=1}"          # 1 = verbose, 0 = quiet
 : "${DEBUG:=0}"            # 1 = debug logs enabled
