@@ -27,6 +27,9 @@ echo
 echo "• Functions invoked:"
 grep -oP '\b[a-zA-Z_][a-zA-Z0-9_]*(?=\s*\(|\b)' "$INSTALLER" |
 grep -vE '^(if|then|else|fi|while|for|do|done|echo|read|source|bash|exit|printf|cd|ls|true|false)$' |
+grep -vP '^[A-Z0-9_]+$' |   # ignores constants like ACCOUNT, HOST, etc.
+grep -vP '^".*"$' |         # ignores strings in double quotes
+grep -vP "'.*'" |           # ignores strings in single quotes
 sort -u |
 while read -r func; do
   printf "  - %s() … " "$func"
@@ -34,9 +37,7 @@ while read -r func; do
     echo "OK"
   else
     echo "⚠️  NOT DEFINED"
-    # Show where it is invoked
     grep -nE "(^|[^a-zA-Z0-9_])${func}(\s|\(|$)" "$INSTALLER" | sed "s/^/     /"
-    # Search for the closest suggestion
     suggestion=$(grep -R -hE '^[a-zA-Z_][a-zA-Z0-9_]*\s*\(\)' "$MODULE_DIR" "$UTILS_FILE" \
       | sed 's/().*//' \
       | grep -v "^$func$" \
