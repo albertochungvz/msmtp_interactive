@@ -8,15 +8,23 @@ INSTALLER_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)"
 source "$INSTALLER_DIR/modules/utils.sh"
 
 if [[ "${DEBUG:-0}" -eq 1 ]]; then
-    log_debug "PKG_LIST=${PKG_LIST:-<default>}"
-    log_debug "Final package list: ${packages[*]}"
-    log_debug "Running as user: $(id -u -n) (UID $(id -u))"
+    section "DEBUG INFO"
+    log_debug "Installer dir      : $INSTALLER_DIR"
+    log_debug "Modules dir        : $(get_script_dir)"
+    log_debug "Script invoked as  : $0"
+    log_debug "Current user       : $(id -u -n) (UID $(id -u))"
+    log_debug "Shell              : $SHELL"
+    log_debug "Bash version       : $BASH_VERSION"
+    log_debug "Working directory  : $(pwd)"
+    log_debug "Environment vars   : DRY_RUN=${DRY_RUN:-0}, NON_INTERACTIVE=${NON_INTERACTIVE:-0}, VERBOSE=${VERBOSE:-1}, DEBUG=${DEBUG:-0}"
+    log_debug "PATH               : $PATH"
     if command -v apt-get >/dev/null 2>&1; then
-        log_debug "apt-get found at $(command -v apt-get)"
+        log_debug "apt-get found at   : $(command -v apt-get)"
     else
         log_warn "apt-get not found in PATH"
     fi
 fi
+
 
 
 # get_script_dir points to modules/
