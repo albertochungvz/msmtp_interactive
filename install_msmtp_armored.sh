@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
-set -Eeuo pipefail
+# set -Eeuo pipefail
+set -Eeo pipefail
 
-# Bbootstrap fase: solving installer directory for loading utils.sh
+# Bootstrap fase: solving installer directory for loading utils.sh
 INSTALLER_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)"
 
 # Load utils.sh from installer directory
@@ -9,24 +10,21 @@ source "$INSTALLER_DIR/modules/utils.sh"
 
 if [[ "${DEBUG:-0}" -eq 1 ]]; then
     section "DEBUG INFO"
-    log_debug "Installer dir      : $INSTALLER_DIR"
-    log_debug "Modules dir        : $(get_script_dir || echo '<error>')"
-    log_debug "Script invoked as  : $0"
-    log_debug "Current user       : $(id -u -n) (UID $(id -u))"
-    log_debug "Shell              : ${SHELL:-<unknown>}"
-    log_debug "Bash version       : $BASH_VERSION"
-    log_debug "Working directory  : $(pwd || echo '<error>')"
-    log_debug "Environment vars   : DRY_RUN=${DRY_RUN:-0}, NON_INTERACTIVE=${NON_INTERACTIVE:-0}, VERBOSE=${VERBOSE:-1}, DEBUG=${DEBUG:-0}"
-    log_debug "PATH               : $PATH"
+    { log_debug "Installer dir      : $INSTALLER_DIR" || true; }
+    { log_debug "Modules dir        : $(get_script_dir || echo '<error>')" || true; }
+    { log_debug "Script invoked as  : $0" || true; }
+    { log_debug "Current user       : $(id -u -n 2>/dev/null || echo '<error>') (UID $(id -u 2>/dev/null || echo '<error>'))" || true; }
+    { log_debug "Shell              : ${SHELL:-<unknown>}" || true; }
+    { log_debug "Bash version       : $BASH_VERSION" || true; }
+    { log_debug "Working directory  : $(pwd || echo '<error>')" || true; }
+    { log_debug "Environment vars   : DRY_RUN=${DRY_RUN:-0}, NON_INTERACTIVE=${NON_INTERACTIVE:-0}, VERBOSE=${VERBOSE:-1}, DEBUG=${DEBUG:-0}" || true; }
+    { log_debug "PATH               : $PATH" || true; }
     if command -v apt-get >/dev/null 2>&1; then
-        log_debug "apt-get found at   : $(command -v apt-get || echo '<error>')"
+        { log_debug "apt-get found at   : $(command -v apt-get || echo '<error>')" || true; }
     else
-        log_warn "apt-get not found in PATH"
+        { log_warn "apt-get not found in PATH" || true; }
     fi
 fi
-
-
-
 
 # get_script_dir points to modules/
 MODULES_DIR="$(get_script_dir)"
