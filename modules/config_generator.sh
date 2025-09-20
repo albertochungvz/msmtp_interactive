@@ -126,7 +126,7 @@ generate_msmtprc() {
     load_env_file
 
     # Check msmtp availability and version
-    require_cmd "msmtp"
+    require_command "msmtp"
     if ! version_gte "$(msmtp --version | awk 'NR==1{print $3}')" "$MIN_MSMTP_VERSION"; then
         log_error "msmtp >= $MIN_MSMTP_VERSION is required"
         exit 1

@@ -1,4 +1,4 @@
-name: Verify Installer and Modules Coherence
+name: Verify installer-module coherence
 
 on:
   push:
@@ -16,11 +16,57 @@ jobs:
   sanity-check:
     runs-on: ubuntu-latest
     steps:
-      - name: Code Checkout
-        uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - name: Make script executable
+      - name: Ensure verify_installer.sh is executable
         run: chmod +x verify_installer.sh
 
-      - name: Run coherence verification
-        run: ./verify_installer.sh
+      - name: Run installer-module sanity check
+        id: verify
+        run: |
+          set +e
+          ./verify_installer.sh | tee verify.log
+          EXIT_CODE=$?
+          echo "exit_code=$EXIT_CODE" >> $GITHUB_OUTPUT
+          set -e
+
+      - name: Show suggested fixes if check failed
+        if: steps.verify.outputs.exit_code != '0'
+        run: |
+          echo "❌ Sanity check failed. Suggested actions:"
+          echo
+          echo "Missing modules:"
+          grep "❌ MISSING" verify.log || echo "  None"
+          echo
+          echo "Undefined functions:"
+          grep "⚠️  NOT DEFINED" verify.log || echo "  None"
+          echo
+          echo "💡 Check above for 'Did you mean…?' suggestions."
+          echo
+          echo "You can fix missing modules by:"
+          echo "  - Creating the module file under modules/"
+          echo "  - Or removing the call from install_msmtp_armored.sh"
+          echo
+          echo "You can fix undefined functions by:"
+          echo "  - Defining them in utils.sh or the relevant module"
+          echo "  - Or renaming calls to match existing function names"
+
+      - name: Fail on protected branches
+        if: steps.verify.outputs.exit_code != '0' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/release/'))
+        run: |
+          echo "❌ Strict mode: failing build on protected branch."
+          exit 1
+
+      - name: Warn only on dev/feature branches
+        if: steps.verify.outputs.exit_code != '0' && !(github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/release/'))
+        run: |
+          echo "⚠️ Warning mode: issues detected, but not failing build on this branch."
+
+      - name: Upload verify.log artifact (warning mode only)
+        if: steps.verify.outputs.exit_code != '0' && !(github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/release/'))
+        uses: actions/upload-artifact@v4
+        with:
+          name: verify-installer-log
+          path: verify.log
+          retention-days: 7

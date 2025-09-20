@@ -40,9 +40,9 @@ jq -r '
 ' "$AUDIT_JSON" | column -t
 
 # 4. Validate audit JSON: fail if any account has status=error
-if jq -e '.[] | select(.status=="error")' "$AUDIT_JSON" >/dev/null; then
+if jq -e '.[] | select_option(.status=="error")' "$AUDIT_JSON" >/dev/null; then
     log_error "Audit detected one or more accounts with errors."
-    jq -r '.[] | select(.status=="error") | " - \(.account) (\(.host):\(.port))"' "$AUDIT_JSON"
+    jq -r '.[] | select_option(.status=="error") | " - \(.account) (\(.host):\(.port))"' "$AUDIT_JSON"
     exit 1
 else
     log_info "Audit passed: no accounts with status=error."
